@@ -1,21 +1,30 @@
 import javax.swing.JButton;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Color;
+import org.apache.batik.transcoder.Transcoder;
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.PNGTranscoder;
+//import org.apache.commons.io.output.ByteArrayOutputStream;
 
 public class Piece extends JButton{
 	String type;
 	int team, i, j,playerTeam;
 	int[] currentTurn;
 	Piece[][] board;
-	Color pieceColor = new Color(160, 120, 60);
+
 	PieceActionListener listener;
 	ObjectOutputStream out;
 	ObjectInputStream in;
@@ -33,8 +42,8 @@ public class Piece extends JButton{
 		}
 		else if(team == 2) {
 			pieceImage = generateChessPieceImage(type, Color.BLACK);
-			ImageIcon imageIcon = new ImageIcon(pieceImage);
-			setIcon(imageIcon);
+			 ImageIcon imageIcon = new ImageIcon(pieceImage);
+			 setIcon(imageIcon);
 		}
 		 
 		this.out = oos;
@@ -44,48 +53,64 @@ public class Piece extends JButton{
 		 this.i = i;
 		 this.j = j;
 		 
-//		 setBackground(new Color(245, 222, 179));
-		 setBackground(new Color(160, 120, 60));
 	}
-	public BufferedImage generateChessPieceImage(String pieceType, Color foregroundColor) {
-        int size = 64;  // Size of the image in pixels
-        BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = image.createGraphics();
+	 public BufferedImage transcodeSVGToBufferedImage(File file, int width, int height) {
+	        // Create a PNG transcoder.
+	        Transcoder t = new PNGTranscoder();
 
-        
-        // Draw the chess piece symbol
-        g2d.setColor(foregroundColor);
-        
-        g2d.setFont(new Font("Monospaced", Font.BOLD, 48));
-        String symbol = getChessPieceSymbol(pieceType);
-        FontMetrics fontMetrics = g2d.getFontMetrics();
-        int x = (size - fontMetrics.stringWidth(symbol)) / 2;
-        int y = (size - fontMetrics.getHeight()) / 2 + fontMetrics.getAscent();
-        g2d.drawString(symbol, x, y);
+	        // Set the transcoding hints.
+	        t.addTranscodingHint(PNGTranscoder.KEY_WIDTH, (float) width);
+	        t.addTranscodingHint(PNGTranscoder.KEY_HEIGHT, (float) height);
+	        try (FileInputStream inputStream = new FileInputStream(file)) {
+	            // Create the transcoder input.
+	            TranscoderInput input = new TranscoderInput(inputStream);
 
-        g2d.dispose();
+	            // Create the transcoder output.
+	            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	            TranscoderOutput output = new TranscoderOutput(outputStream);
 
-        return image;
+	            // Save the image.
+	            t.transcode(input, output);
+
+	            // Flush and close the stream.
+	            outputStream.flush();
+	            outputStream.close();
+
+	            // Convert the byte stream into an image.
+	            byte[] imgData = outputStream.toByteArray();
+	            return ImageIO.read(new ByteArrayInputStream(imgData));
+
+	        } catch (IOException | TranscoderException e) {
+	            
+	        }
+	        return null;
+	    }
+	public BufferedImage generateChessPieceImage(String pieceType, Color color) {
+
+		switch (pieceType) {
+        case "King":
+        	return (color == Color.WHITE) ? transcodeSVGToBufferedImage(new File("images/wK.svg"), 64, 64) : transcodeSVGToBufferedImage(new File("images/bK.svg"), 64, 64);
+        case "Queen":
+        	return (color == Color.WHITE) ? transcodeSVGToBufferedImage(new File("images/wQ.svg"), 64, 64) : transcodeSVGToBufferedImage(new File("images/bQ.svg"), 64, 64);
+
+        case "Rook":
+        	return (color == Color.WHITE) ? transcodeSVGToBufferedImage(new File("images/wR.svg"), 64, 64) : transcodeSVGToBufferedImage(new File("images/bR.svg"), 64, 64);
+
+        case "Bishop":
+        	return (color == Color.WHITE) ? transcodeSVGToBufferedImage(new File("images/wB.svg"), 64, 64) : transcodeSVGToBufferedImage(new File("images/bB.svg"), 64, 64);
+
+        case "Knight":
+        	return (color == Color.WHITE) ? transcodeSVGToBufferedImage(new File("images/wN.svg"), 64, 64) : transcodeSVGToBufferedImage(new File("images/bN.svg"), 64, 64);
+
+        case "Pawn":
+        	return (color == Color.white) ? transcodeSVGToBufferedImage(new File("images/wP.svg"), 64, 64) : transcodeSVGToBufferedImage(new File("images/bP.svg"), 64, 64);
+
+        default:
+            return null;
+		}
+
     }
 
-    private static String getChessPieceSymbol(String pieceType) {
-        switch (pieceType) {
-            case "King":
-                return "\u2654";
-            case "Queen":
-                return "\u2655";
-            case "Rook":
-                return "\u2656";
-            case "Bishop":
-                return "\u2657";
-            case "Knight":
-                return "\u2658";
-            case "Pawn":
-                return "\u2659";
-            default:
-                return "";
-        }
-    }
 	public void setActionListener(PieceActionListener listener) {
 		this.addActionListener(listener);
 		this.listener = listener;
@@ -94,7 +119,6 @@ public class Piece extends JButton{
     	this.type = type;
     	this.team = team;
     	if(team != 0) currentTurn[0] = (currentTurn[0] == 1) ? 2 : 1;
-    	setBackground(new Color(160, 120, 60));
     	if(team == 1) {
     		setIcon( new ImageIcon(generateChessPieceImage(type, Color.WHITE)));
 		}

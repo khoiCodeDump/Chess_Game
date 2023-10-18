@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -51,10 +52,70 @@ public class Client {
             	 int callerJ = message.callerJ;
             	 int i = message.i;
             	 int j = message.j;
+            	 int min_distance = Integer.MAX_VALUE;
+            	 int caller_min_distance = Integer.MAX_VALUE;
             	 
-            	 game.pieces[message.callerI][message.callerJ].updatePiece("Empty", 0);
+            	 int[] closest_center_point = {0, 0};
+            	 int[] caller_closest_center_point = {0, 0};
+            	 int[][] center_points = {{3,3}, {3,4}, {4,3}, {4,4}};
+            	 
+            	 for(int[] arr : center_points ) {
+            		 int distance = (int) Math.hypot(i-arr[0], j-arr[1]);
+            		 int caller_distance = (int) Math.hypot(callerI-arr[0], callerJ-arr[1]);
+            		 if(min_distance > distance) {
+            			 closest_center_point = arr;
+            			 min_distance = distance;
+            		 }  		 
+            		 if(caller_min_distance > caller_distance) {
+            			 caller_closest_center_point = arr;
+            			 caller_min_distance = caller_distance;
+            		 }
+            	 }
+            	 int[] movement = {Math.abs(closest_center_point[0]-i), Math.abs(closest_center_point[1]-j)};
+            	 int[] caller_movement = {Math.abs(caller_closest_center_point[0]-callerI), Math.abs(caller_closest_center_point[1]-callerJ)};
+            	 System.out.println(Arrays.toString(caller_movement));
+
+            	 int[] dest = {0,0};
+            	 int[] caller_dest = {0,0};
+            	 if(closest_center_point == center_points[0]) {
+            		 
+            		 dest[0] = 4+movement[0];
+            		 dest[1] = 4+movement[1]; 
+            	 }
+            	 else if(closest_center_point == center_points[1]) {
+            		 dest[0] = 4+movement[0];
+            		 dest[1] = 3-movement[1];
+            		 
+            	 }
+            	 else if(closest_center_point == center_points[2]) {
+            		 dest[0] = 3-movement[0];
+            		 dest[1] = 4+movement[1];
+            		
+            	 }
+            	 else if(closest_center_point == center_points[3]){
+            		 dest[0] = 3-movement[0];
+            		 dest[1] = 3-movement[1];
+            		
+            	 }
+            	 if(caller_closest_center_point == center_points[0]) {
+        			 caller_dest[0] = 4+caller_movement[0];
+            		 caller_dest[1] = 4+caller_movement[1];
+        		 }
+            	 else if(caller_closest_center_point == center_points[1]) {
+        			 caller_dest[0] = 4+caller_movement[0];
+            		 caller_dest[1] = 3-caller_movement[1];
+        		 } 
+            	 else  if(caller_closest_center_point == center_points[2]) {
+        			 caller_dest[0] = 3-caller_movement[0];
+            		 caller_dest[1] = 4+caller_movement[1];
+        		 }
+            	 else  if(caller_closest_center_point == center_points[3]) {
+        			 caller_dest[0] = 3-caller_movement[0];
+            		 caller_dest[1] = 3-caller_movement[1];
+        		 }
+            	 game.pieces[caller_dest[0]][caller_dest[1]].updatePiece("Empty", 0);
          		
-            	 game.pieces[message.i][message.j].updatePiece(message.callerType, message.callerTeam);
+            	 game.pieces[dest[0]][dest[1]].updatePiece(message.callerType, message.callerTeam);
             	 game.turn[0] = team;
 //            	 game.gameInfo.startTimer();
              }
@@ -83,7 +144,8 @@ public class Client {
             	 if(team == 1)gameWindow.setTitle("Team White");
                  else gameWindow.setTitle("Team Black");
             	 gameWindow.setContentPane(game);
-            	 gameWindow.setBounds(100, 100, 831, 384);
+            	 gameWindow.setBounds(100, 100, 960, 800);
+            	 gameWindow.setResizable(false);
                  System.out.println("Created board");
                  EventQueue.invokeLater(new Runnable() {
          			public void run() {
@@ -94,6 +156,7 @@ public class Client {
          				}
          			}
          		});
+                
              }
             
         }

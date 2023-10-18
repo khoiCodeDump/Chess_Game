@@ -1,8 +1,11 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 import java.awt.GridLayout;
 import java.io.ObjectInputStream;
@@ -126,13 +129,41 @@ public class Board extends JPanel {
 					pieces[i][j].setActionListener(new PieceActionListener("Empty", i, j, 0, pieces));
 					gamePanel.add(pieces[i][j]);
 				}
+			}	
+		}
+//		 #779952
+//	     #edeed1
+		Color themePiece = hexToColor("#779952");
+		Color themePieceWhite = hexToColor("#edeed1");
+		Color curColor = themePieceWhite;
+		for(int a=0; a<8; a++) {
+			Color curColumnColor = curColor;
+			for(int b=0; b<8; b++) {
+				pieces[a][b].setBackground(curColumnColor);
+				pieces[a][b].setBorder(new EmptyBorder(0, 0, 0, 0));
+				if(curColumnColor == themePiece) curColumnColor = themePieceWhite;
+				else curColumnColor = themePiece;
 			}
-			
-			
+			if(curColor == themePiece) curColor = themePieceWhite;
+			else curColor = themePiece;
 		}
 		gameInfo = new GameInfoPanel(pieces, playerTeam, teamPiece, 1);
 		add(gameInfo, BorderLayout.EAST);
 		
 	}
+	public Color hexToColor(String hex) {
+        // Remove the "#" symbol if present
+        if (hex.startsWith("#")) {
+            hex = hex.substring(1);
+        }
+
+        // Parse the hex string to get RGB values
+        int red = Integer.parseInt(hex.substring(0, 2), 16);
+        int green = Integer.parseInt(hex.substring(2, 4), 16);
+        int blue = Integer.parseInt(hex.substring(4, 6), 16);
+
+        // Create and return the Color object
+        return new Color(red, green, blue);
+    }
 	
 }
