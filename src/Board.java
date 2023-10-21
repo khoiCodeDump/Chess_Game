@@ -1,25 +1,24 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-
 import java.awt.GridLayout;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 public class Board extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	Piece[][] pieces;
 	GameInfoPanel gameInfo;
 	int playerTeam;
 	int[] turn;
-	public Board(int playerTeam, ObjectInputStream in, ObjectOutputStream out) {
+	public Board(int playerTeam, ObjectInputStream in, ObjectOutputStream out, JFrame gameWindow) {
 		HashSet<Piece> teamPiece = new HashSet<>();
 		HashSet<Piece> curPieces = new HashSet<>();
 		this.playerTeam = playerTeam;
@@ -34,28 +33,37 @@ public class Board extends JPanel {
 		
 		for(int i=0; i<8; i++) {
 			if(i==0) {
-				pieces[i][0] = new Piece("Rook", i, 0, oppositeTeam, pieces, out, in, oppositeTeam, turn, curPieces) ;
+				pieces[i][0] = new Piece("Rook", i, 0, oppositeTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
 				pieces[i][0].setActionListener(new PieceActionListener("Rook", i, 0, oppositeTeam, pieces));
 				
-				pieces[i][1] = new Piece("Knight", i, 1, oppositeTeam, pieces,out, in, oppositeTeam, turn, curPieces) ;
+				pieces[i][1] = new Piece("Knight", i, 1, oppositeTeam, pieces,out, in, playerTeam, turn, curPieces, gameWindow) ;
 				pieces[i][1].setActionListener(new PieceActionListener("Knight", i, 1, oppositeTeam, pieces));
 				
-				pieces[i][2] = new Piece("Bishop", i, 2, oppositeTeam, pieces, out, in, oppositeTeam, turn, curPieces) ;
+				pieces[i][2] = new Piece("Bishop", i, 2, oppositeTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
 				pieces[i][2].setActionListener(new PieceActionListener("Bishop", i, 2, oppositeTeam, pieces));
 				
-				pieces[i][3] = new Piece("Queen", i, 3, oppositeTeam, pieces, out, in, oppositeTeam, turn, curPieces) ;
-				pieces[i][3].setActionListener(new PieceActionListener("Queen", i, 3, oppositeTeam, pieces));
+				if(playerTeam ==1) {
+					pieces[i][3] = new Piece("Queen", i, 3, oppositeTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
+					pieces[i][3].setActionListener(new PieceActionListener("Queen", i, 3, oppositeTeam, pieces));
+					
+					pieces[i][4] = new Piece("King", i, 4, oppositeTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
+					pieces[i][4].setActionListener(new PieceActionListener("King", i, 4, oppositeTeam, pieces));
+				}
+				else {
+					pieces[i][3] = new Piece("King", i, 3, oppositeTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
+					pieces[i][3].setActionListener(new PieceActionListener("King", i, 3, oppositeTeam, pieces));
+					
+					pieces[i][4] = new Piece("Queen", i, 4, oppositeTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
+					pieces[i][4].setActionListener(new PieceActionListener("Queen", i, 4, oppositeTeam, pieces));
+				}
 				
-				pieces[i][4] = new Piece("King", i, 4, oppositeTeam, pieces, out, in, oppositeTeam, turn, curPieces) ;
-				pieces[i][4].setActionListener(new PieceActionListener("King", i, 4, oppositeTeam, pieces));
-				
-				pieces[i][5] = new Piece("Bishop", i, 5, oppositeTeam, pieces,out, in, oppositeTeam, turn, curPieces) ;
+				pieces[i][5] = new Piece("Bishop", i, 5, oppositeTeam, pieces,out, in, playerTeam, turn, curPieces, gameWindow) ;
 				pieces[i][5].setActionListener(new PieceActionListener("Bishop", i, 5, oppositeTeam, pieces));
 				
-				pieces[i][6] = new Piece("Knight", i, 6, oppositeTeam, pieces, out, in, oppositeTeam, turn, curPieces) ;
+				pieces[i][6] = new Piece("Knight", i, 6, oppositeTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
 				pieces[i][6].setActionListener(new PieceActionListener("Knight", i, 6, oppositeTeam, pieces));
 				
-				pieces[i][7] = new Piece("Rook", i, 7, oppositeTeam, pieces, out, in, oppositeTeam, turn, curPieces) ;
+				pieces[i][7] = new Piece("Rook", i, 7, oppositeTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
 				pieces[i][7].setActionListener(new PieceActionListener("Rook", i, 7, oppositeTeam, pieces));
 				gamePanel.add(pieces[i][0]);
 				gamePanel.add(pieces[i][1]);
@@ -68,34 +76,42 @@ public class Board extends JPanel {
 			}
 			else if(i==1) {
 				for(int j=0; j<8; j++) {
-					pieces[i][j] = new Piece("Pawn", i, j, oppositeTeam, pieces, out, in, oppositeTeam, turn, curPieces) ;
+					pieces[i][j] = new Piece("Pawn", i, j, oppositeTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
 					pieces[i][j].setActionListener(new PieceActionListener("Pawn", i, j, oppositeTeam, pieces));
 					gamePanel.add(pieces[i][j]);
 				}
 			}
 			else if(i==pieces.length-1) {
-				pieces[i][0] = new Piece("Rook", i, 0, playerTeam, pieces, out, in, playerTeam, turn, curPieces) ;
+				pieces[i][0] = new Piece("Rook", i, 0, playerTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
 				pieces[i][0].setActionListener(new PieceActionListener("Rook", i, 0, playerTeam, pieces));
 				
-				pieces[i][1] = new Piece("Knight", i, 1, playerTeam, pieces,out, in, playerTeam, turn, curPieces) ;
+				pieces[i][1] = new Piece("Knight", i, 1, playerTeam, pieces,out, in, playerTeam, turn, curPieces, gameWindow) ;
 				pieces[i][1].setActionListener(new PieceActionListener("Knight", i, 1, playerTeam, pieces));
 				
-				pieces[i][2] = new Piece("Bishop", i, 2, playerTeam, pieces, out, in, playerTeam, turn, curPieces) ;
+				pieces[i][2] = new Piece("Bishop", i, 2, playerTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
 				pieces[i][2].setActionListener(new PieceActionListener("Bishop", i, 2, playerTeam, pieces));
 				
-				pieces[i][3] = new Piece("Queen", i, 3, playerTeam, pieces, out, in, playerTeam, turn, curPieces) ;
-				pieces[i][3].setActionListener(new PieceActionListener("Queen", i, 3, playerTeam, pieces));
-				
-				pieces[i][4] = new Piece("King", i, 4, playerTeam, pieces, out, in, playerTeam, turn, curPieces) ;
-				pieces[i][4].setActionListener(new PieceActionListener("King", i, 4, playerTeam, pieces));
-				
-				pieces[i][5] = new Piece("Bishop", i, 5, playerTeam, pieces,out, in, playerTeam, turn, curPieces) ;
+				if(playerTeam ==1) {
+					pieces[i][3] = new Piece("Queen", i, 3, playerTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
+					pieces[i][3].setActionListener(new PieceActionListener("Queen", i, 3, playerTeam, pieces));
+					
+					pieces[i][4] = new Piece("King", i, 4, playerTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
+					pieces[i][4].setActionListener(new PieceActionListener("King", i, 4, playerTeam, pieces));
+				}
+				else {
+					pieces[i][3] = new Piece("King", i, 3, playerTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
+					pieces[i][3].setActionListener(new PieceActionListener("King", i, 3, playerTeam, pieces));
+					
+					pieces[i][4] = new Piece("Queen", i, 4, playerTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
+					pieces[i][4].setActionListener(new PieceActionListener("Queen", i, 4, playerTeam, pieces));
+				}
+				pieces[i][5] = new Piece("Bishop", i, 5, playerTeam, pieces,out, in, playerTeam, turn, curPieces, gameWindow) ;
 				pieces[i][5].setActionListener(new PieceActionListener("Bishop", i, 5, playerTeam, pieces));
 				
-				pieces[i][6] = new Piece("Knight", i, 6, playerTeam, pieces, out, in, playerTeam, turn, curPieces) ;
+				pieces[i][6] = new Piece("Knight", i, 6, playerTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
 				pieces[i][6].setActionListener(new PieceActionListener("Knight", i, 6, playerTeam, pieces));
 				
-				pieces[i][7] = new Piece("Rook", i, 7, playerTeam, pieces, out, in, playerTeam, turn, curPieces) ;
+				pieces[i][7] = new Piece("Rook", i, 7, playerTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
 				pieces[i][7].setActionListener(new PieceActionListener("Rook", i, 7, playerTeam, pieces));
 				
 				teamPiece.add(pieces[i][0]);
@@ -117,7 +133,7 @@ public class Board extends JPanel {
 			}
 			else if(i==pieces.length-2) {
 				for(int j=0; j<8; j++) {
-					pieces[i][j] = new Piece("Pawn", i, j, playerTeam, pieces, out, in, playerTeam, turn, curPieces) ;
+					pieces[i][j] = new Piece("Pawn", i, j, playerTeam, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
 					pieces[i][j].setActionListener(new PieceActionListener("Pawn", i, j, playerTeam, pieces));
 					teamPiece.add(pieces[i][j]);
 					gamePanel.add(pieces[i][j]);
@@ -125,7 +141,7 @@ public class Board extends JPanel {
 			}
 			else {
 				for(int j=0; j<8; j++) {
-					pieces[i][j] = new Piece("Empty", i, j, 0, pieces, out, in, playerTeam, turn, curPieces) ;
+					pieces[i][j] = new Piece("Empty", i, j, 0, pieces, out, in, playerTeam, turn, curPieces, gameWindow) ;
 					pieces[i][j].setActionListener(new PieceActionListener("Empty", i, j, 0, pieces));
 					gamePanel.add(pieces[i][j]);
 				}

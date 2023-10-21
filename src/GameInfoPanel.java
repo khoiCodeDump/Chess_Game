@@ -1,15 +1,11 @@
-import java.awt.Font; 
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashSet;
 
-import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 public class GameInfoPanel extends JPanel {
@@ -20,7 +16,7 @@ public class GameInfoPanel extends JPanel {
     private int blackremainingSeconds, whiteremainingSeconds, team, currentTurn;
     HashSet<Piece> teamPiece;
     Timer blackTimer, whiteTimer;
-	GameInfoPanel(Piece[][] board, int team, HashSet<Piece> teamPiece, int currentTurn){
+	GameInfoPanel(int playerTeam, ObjectInputStream in, ObjectOutputStream out) {
 		this.board = board;
 		setLayout(new GridLayout(2, 1, 0, 0));
 		this.team = team;

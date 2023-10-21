@@ -1,4 +1,3 @@
-import javax.swing.JButton;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -20,16 +19,20 @@ import org.apache.batik.transcoder.image.PNGTranscoder;
 //import org.apache.commons.io.output.ByteArrayOutputStream;
 
 public class Piece extends JButton{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	String type;
 	int team, i, j,playerTeam;
 	int[] currentTurn;
 	Piece[][] board;
-
+	JFrame gameWindow;
 	PieceActionListener listener;
 	ObjectOutputStream out;
 	ObjectInputStream in;
 	HashSet<Piece> curPieces;
-	Piece(String type, int i, int j, int team, Piece[][] board, ObjectOutputStream oos, ObjectInputStream ois, int playerTeam, int[] currentTurn, HashSet<Piece> curPieces){
+	Piece(String type, int i, int j, int team, Piece[][] board, ObjectOutputStream oos, ObjectInputStream ois, int playerTeam, int[] currentTurn, HashSet<Piece> curPieces, JFrame gameWindow){
 		this.curPieces = curPieces;
 		this.type = type;
 		this.playerTeam = playerTeam;
@@ -45,7 +48,7 @@ public class Piece extends JButton{
 			 ImageIcon imageIcon = new ImageIcon(pieceImage);
 			 setIcon(imageIcon);
 		}
-		 
+		 this.gameWindow = gameWindow;
 		this.out = oos;
 		this.in = ois;
 		 this.team = team;
