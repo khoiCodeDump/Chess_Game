@@ -109,12 +109,17 @@ public class GameInfoPanel extends JPanel {
 		buttonPanel.add(draw);
 		buttonPanel.setBackground(hexToColor("312E2B"));
 		
+		if(team == 1) {
+			add(blackTimerLabel);
+		}
+		else add(whiteTimerLabel);
 		
-		add(blackTimerLabel);
 		add(currentTurn);
 		add(buttonPanel);
-	    add(whiteTimerLabel);
-		
+		if(team == 1) {
+		    add(whiteTimerLabel);
+		}
+		else add(blackTimerLabel);
 		
 	} 
 	public void setBoard(Piece[][] board) {
