@@ -50,9 +50,10 @@ public class PlayerThread extends Thread {
 //						}
 						
 					}
-//					else if(data.command.equals("Start")) {
-//						out.writeObject(new Data("Start", 2));
-//					}
+					else if(data.command.equals("Pawn_Promo")) {
+						if(game.player1.getId() == this.getId()) game.updateGameState(this, game.player2, data);
+						else game.updateGameState(this, game.player1, data);	
+					}
 					else if(data.command.equals("End")) {
 						game.endGame(this);
 					}

@@ -1,4 +1,5 @@
-import java.awt.EventQueue;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -12,9 +13,8 @@ import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
 
-public class LobbyWindow extends JFrame {
+public class LobbyWindow extends JPanel {
 
-	private JPanel contentPane;
 	int time = 0;
 	Timer queueTimer;
 	/**
@@ -37,16 +37,18 @@ public class LobbyWindow extends JFrame {
 	 * Create the frame.
 	 */
 	public LobbyWindow(ObjectInputStream in, ObjectOutputStream out) {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-		setContentPane(contentPane);
+		setBorder(new EmptyBorder(5, 5, 5, 5));
+		setBackground(hexToColor("312E2B"));
+       
 		
 		JButton queueUp = new JButton("Play");
-		
+		queueUp.setBackground(hexToColor("#779952"));
+		queueUp.setForeground(Color.white);
+		queueUp.setFocusable(false);
+		queueUp.setSize(100, 80);
 		JLabel timeLabel = new JLabel();
+		timeLabel.setForeground(Color.WHITE);
 		queueTimer = new Timer(1000, new ActionListener() {
 
 			@Override
@@ -88,12 +90,26 @@ public class LobbyWindow extends JFrame {
 		});
 		
 			
-		contentPane.add(timeLabel);
-		contentPane.add(queueUp);
+		add(timeLabel, BorderLayout.SOUTH);
+		add(queueUp);
 	}
 	public void resetTimer() {
 		queueTimer.stop();
 		time = 0;
 		
 	}
+	public Color hexToColor(String hex) {
+        // Remove the "#" symbol if present
+        if (hex.startsWith("#")) {
+            hex = hex.substring(1);
+        }
+
+        // Parse the hex string to get RGB values
+        int red = Integer.parseInt(hex.substring(0, 2), 16);
+        int green = Integer.parseInt(hex.substring(2, 4), 16);
+        int blue = Integer.parseInt(hex.substring(4, 6), 16);
+
+        // Create and return the Color object
+        return new Color(red, green, blue);
+    }
 }

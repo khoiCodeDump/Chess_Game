@@ -27,12 +27,14 @@ public class Piece extends JButton{
 	int team, i, j,playerTeam;
 	int[] currentTurn;
 	Piece[][] board;
-	JFrame gameWindow;
+	GameInfoPanel gameWindow;
 	PieceActionListener listener;
 	ObjectOutputStream out;
 	ObjectInputStream in;
 	HashSet<Piece> curPieces;
-	Piece(String type, int i, int j, int team, Piece[][] board, ObjectOutputStream oos, ObjectInputStream ois, int playerTeam, int[] currentTurn, HashSet<Piece> curPieces, JFrame gameWindow){
+	JPanel gamePanel;
+	Piece(String type, int i, int j, int team, Piece[][] board, ObjectOutputStream oos, ObjectInputStream ois, int playerTeam, int[] currentTurn, HashSet<Piece> curPieces, GameInfoPanel gameInfoWindow, JPanel gamePanel){
+		this.gamePanel = gamePanel;
 		this.curPieces = curPieces;
 		this.type = type;
 		this.playerTeam = playerTeam;
@@ -48,7 +50,7 @@ public class Piece extends JButton{
 			 ImageIcon imageIcon = new ImageIcon(pieceImage);
 			 setIcon(imageIcon);
 		}
-		 this.gameWindow = gameWindow;
+		 this.gameWindow = gameInfoWindow;
 		this.out = oos;
 		this.in = ois;
 		 this.team = team;
@@ -121,12 +123,25 @@ public class Piece extends JButton{
     public void updatePiece(String type, int team) {
     	this.type = type;
     	this.team = team;
+    	
     	if(team != 0) currentTurn[0] = (currentTurn[0] == 1) ? 2 : 1;
     	if(team == 1) {
     		setIcon( new ImageIcon(generateChessPieceImage(type, Color.WHITE)));
 		}
 		else if(team == 2) setIcon( new ImageIcon(generateChessPieceImage(type, Color.BLACK)));
 		else setIcon(null);
+    	removeActionListener(this.listener);
+    	setActionListener(new PieceActionListener(type, i, j, team, board));
+    	
+    }
+    public void updatePiece(String type) {
+    	this.type = type;
+    	
+    	if(team == 1) {
+    		setIcon( new ImageIcon(generateChessPieceImage(type, Color.WHITE)));
+		}
+		else if(team == 2) setIcon( new ImageIcon(generateChessPieceImage(type, Color.BLACK)));
+    	
     	removeActionListener(this.listener);
     	setActionListener(new PieceActionListener(type, i, j, team, board));
     	

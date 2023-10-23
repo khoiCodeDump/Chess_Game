@@ -36,16 +36,31 @@ public class PieceActionListener implements ActionListener {
 		this.callerI = -1;
 		this.callerJ = -1;
 	}
+	public Color hexToColor(String hex) {
+        // Remove the "#" symbol if present
+        if (hex.startsWith("#")) {
+            hex = hex.substring(1);
+        }
+
+        // Parse the hex string to get RGB values
+        int red = Integer.parseInt(hex.substring(0, 2), 16);
+        int green = Integer.parseInt(hex.substring(2, 4), 16);
+        int blue = Integer.parseInt(hex.substring(4, 6), 16);
+
+        // Create and return the Color object
+        return new Color(red, green, blue);
+    }
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
 		
 		if(callerType != null) {
-			updatePiece();
+			
 			if(callerType.equals("Pawn") && i==0) {
+				updatePiece(1);
 				System.out.println("In dialog creation");
 				JDialog options = new JDialog();
-				options.setLocationRelativeTo(board[i][j].gameWindow);
+				options.setLocationRelativeTo(board[i][j].gamePanel);
 				options.setLayout(new GridLayout(2, 2, 0, 0));
 				options.setSize(220, 200);
 				options.setResizable(false);
@@ -64,7 +79,7 @@ public class PieceActionListener implements ActionListener {
 					public void actionPerformed(ActionEvent e) {
 						// TODO Auto-generated method stub
 						options.dispose();
-						board[i][j].updatePiece("Queen", callerTeam);
+						updatePiece("Queen");
 					}
 					
 				});
@@ -84,7 +99,7 @@ public class PieceActionListener implements ActionListener {
 					public void actionPerformed(ActionEvent e) {
 						// TODO Auto-generated method stub
 						options.dispose();
-						board[i][j].updatePiece("Rook", callerTeam);
+						updatePiece("Rook");
 					}
 					
 				});
@@ -105,7 +120,7 @@ public class PieceActionListener implements ActionListener {
 					public void actionPerformed(ActionEvent e) {
 						// TODO Auto-generated method stub
 						options.dispose();
-						board[i][j].updatePiece("Bishop", callerTeam);
+						updatePiece("Bishop");
 					}
 					
 				});
@@ -126,26 +141,26 @@ public class PieceActionListener implements ActionListener {
 					public void actionPerformed(ActionEvent e) {
 						// TODO Auto-generated method stub
 						options.dispose();
-						board[i][j].updatePiece("Knight", callerTeam);
+						updatePiece("Knight");
 					}
 					
 				});
 				
 				options.setVisible(true);
 			}
+			else {
+				updatePiece(0);
+			}
 		}
 		else if(board[i][j].playerTeam != this.team) {
-			System.out.println(callerType);
-			System.out.println("Prevents player from moving opposite team piece");
 			return;
 		}
 		else if(this.team != board[i][j].currentTurn[0]) {
-			System.out.println("Prevents player from moving if not correct turn");
 			return;
 		}
 		else {
-			System.out.println("All movements");
-
+//			board[i][j].setBackground(hexToColor("#ffff33"));
+			
 			if(!board[i][j].curPieces.isEmpty() && !board[i][j].curPieces.contains(board[i][j])) {
 				for(Piece setColor : board[i][j].curPieces) {
 					setColor.listener.unsetOverride();
@@ -445,9 +460,9 @@ public class PieceActionListener implements ActionListener {
 	} 
 
 
-	private void updatePiece() {
+	private void updatePiece(int pawnPromo) {
 			try {
-				board[i][j].out.writeObject(new Data("Move", i, j, callerI, callerJ, callerTeam, callerType ));
+				board[i][j].out.writeObject(new Data("Move", i, j, callerI, callerJ, callerTeam, callerType, pawnPromo ));
 				
 				board[i][j].out.flush();
 			} catch (IOException e) {
@@ -462,10 +477,15 @@ public class PieceActionListener implements ActionListener {
 			}
 
 			board[i][j].curPieces.clear();
-		
-		
-		
-		
-		
+	}
+	private void updatePiece(String type) {
+		try {
+			board[i][j].out.writeObject(new Data("Pawn_Promo", i, j, -1, -1, team, type, -1 ));
+			
+			board[i][j].out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		board[i][j].updatePiece(type);
 	}
 }
