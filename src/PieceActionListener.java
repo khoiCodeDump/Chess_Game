@@ -55,7 +55,6 @@ public class PieceActionListener implements ActionListener {
 		
 		
 		if(callerType != null) {
-			
 			if(callerType.equals("Pawn") && i==0) {
 				updatePiece(1);
 				System.out.println("In dialog creation");
@@ -147,10 +146,12 @@ public class PieceActionListener implements ActionListener {
 				});
 				
 				options.setVisible(true);
-			}
+			} //end if
 			else {
 				updatePiece(0);
+
 			}
+
 		}
 		else if(board[i][j].playerTeam != this.team) {
 			return;
@@ -460,15 +461,28 @@ public class PieceActionListener implements ActionListener {
 	} 
 
 
-	private void updatePiece(int pawnPromo) {
+	private void updatePiece(int update) {
 			try {
-				board[i][j].out.writeObject(new Data("Move", i, j, callerI, callerJ, callerTeam, callerType, pawnPromo ));
+				board[i][j].out.writeObject(new Data("Move", i, j, callerI, callerJ, callerTeam, callerType, update ));
 				
 				board[i][j].out.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-				
+			if(update==0) {
+				if(callerTeam == 1) {
+					board[i][j].gameWindow.whiteTimer.stop();
+					board[i][j].gameWindow.blackTimer.start();
+					board[i][j].gameWindow.updateCurTurn();
+				}
+				else {
+					board[i][j].gameWindow.whiteTimer.start();
+					board[i][j].gameWindow.blackTimer.stop();
+					board[i][j].gameWindow.updateCurTurn();
+				}
+			}
+			
+			
 			board[callerI][callerJ].updatePiece("Empty", 0);
 			board[i][j].updatePiece(callerType, callerTeam);
 
@@ -486,6 +500,18 @@ public class PieceActionListener implements ActionListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		if(team == 1) {
+			board[i][j].gameWindow.whiteTimer.stop();
+			board[i][j].gameWindow.blackTimer.start();
+			board[i][j].gameWindow.updateCurTurn();
+		}
+		else {
+			board[i][j].gameWindow.whiteTimer.start();
+			board[i][j].gameWindow.blackTimer.stop();
+			board[i][j].gameWindow.updateCurTurn();
+
+
+		}		
 		board[i][j].updatePiece(type);
 	}
 }

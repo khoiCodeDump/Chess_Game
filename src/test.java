@@ -8,6 +8,7 @@ import javax.swing.SpringLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JLabel;
 
 public class test extends JPanel {
 
@@ -24,13 +25,6 @@ public class test extends JPanel {
 		springLayout.putConstraint(SpringLayout.SOUTH, btnNewButton, -60, SpringLayout.SOUTH, this);
 		springLayout.putConstraint(SpringLayout.EAST, btnNewButton, 139, SpringLayout.WEST, this);
 		add(btnNewButton);
-		
-		JButton btnNewButton_1 = new JButton("New button");
-		springLayout.putConstraint(SpringLayout.NORTH, btnNewButton_1, 60, SpringLayout.NORTH, this);
-		springLayout.putConstraint(SpringLayout.WEST, btnNewButton_1, -139, SpringLayout.EAST, this);
-		springLayout.putConstraint(SpringLayout.SOUTH, btnNewButton_1, -60, SpringLayout.SOUTH, this);
-		springLayout.putConstraint(SpringLayout.EAST, btnNewButton_1, -35, SpringLayout.EAST, this);
-		add(btnNewButton_1);
 
 	}
 }

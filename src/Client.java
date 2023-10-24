@@ -68,37 +68,30 @@ public class Client {
    	    gameWindowPanel = new JPanel();
    	    gameWindowPanel.setLayout(null);
    	    gameWindow.setContentPane(gameWindowPanel);
+   	    
+   	    gameCardLayout = new CardLayout();
+	 	gameCardLayoutPanel = new JPanel();
+	 	gameCardLayoutPanel.setLayout(gameCardLayout);
+	 	gameCardLayoutPanel.setLocation(0,0);
+	 	gameCardLayoutPanel.setSize(960, 800);
+	 	
+	   	Checkboard boardPlaceHolder = new Checkboard();
+	   	boardPlaceHolder.setLocation(0,0);
+	   	boardPlaceHolder.setSize(960, 800);
+	   	
+	   	gameCardLayoutPanel.add(boardPlaceHolder, 0);
 
    	    cardlayout = new CardLayout();
    	    cardLayoutPanel = new JPanel();
    	    cardLayoutPanel.setLayout(cardlayout);
    	    cardLayoutPanel.setLocation(960, 0);
    	    cardLayoutPanel.setSize(300, 800);
-   	    
-   	    gameInfoWindow = new GameInfoPanel(team);
-   	    gameInfoWindow.setLocation(960, 0);
-   	    gameInfoWindow.setSize(300, 800);
 
    	 	lobbyWindow = new LobbyWindow(ois, oos);
    	 	lobbyWindow.setLocation(960, 0);
    	 	lobbyWindow.setSize(300, 800);
    	 	
    	 	cardLayoutPanel.add(lobbyWindow, 0);
-
-   	 	cardLayoutPanel.add(gameInfoWindow, 1);
-//   	 	gameWindowPanel.add(lobbyWindow);
-   	 	
-   	 	gameCardLayout = new CardLayout();
-   	 	gameCardLayoutPanel = new JPanel();
-   	 	gameCardLayoutPanel.setLayout(gameCardLayout);
-   	 	gameCardLayoutPanel.setLocation(0,0);
-   	 	gameCardLayoutPanel.setSize(960, 800);
-   	 	
-	   	Checkboard boardPlaceHolder = new Checkboard();
-	   	boardPlaceHolder.setLocation(0,0);
-	   	boardPlaceHolder.setSize(960, 800);
-	   	
-	   	gameCardLayoutPanel.add(boardPlaceHolder, 0);
 	   	
 	   	gameWindowPanel.add(gameCardLayoutPanel);
 	   	gameWindowPanel.add(cardLayoutPanel);
@@ -123,6 +116,9 @@ public class Client {
             	 else gameInfoWindow.startTimer(1);
             	 gameInfoWindow.updateCurTurn();
              }
+             else if(message.command.equals("Draw")) {
+            	 
+             }
              else if(message.command.equals("Move")) {
             	 
             	 int[] caller_dest = moveReflection(message.callerI, message.callerJ);
@@ -138,15 +134,7 @@ public class Client {
             		 gameInfoWindow.updateCurTurn();
             	 }
             	
-//            	 game.gameInfo.startTimer();
              }
-//             else if(message.command.equals("Start Timer")) {
-//            	 long timeToStart = message.time;
-//            	 long unixTime = System.currentTimeMillis() / 1000L;
-//            	 while(unixTime<timeToStart)unixTime = System.currentTimeMillis() / 1000L;
-//            	 game.gameInfo.startTimer();
-//            	 
-//             }
              else if(message.command.equals("End")) {
             	 team = -1;
             	 game = null;
@@ -156,31 +144,24 @@ public class Client {
              else if(message.command.equals("Start")) {
             	 
             	 team = message.team;
-            	
-            	
-            	 game = new Board(team, ois, oos, gameInfoWindow);
-
-//            	 gameWindowPanel.setBounds(100, 100, 1110, 800);
-
             	 if(team == 1)gameWindow.setTitle("Team White");
                  else gameWindow.setTitle("Team Black");
-  
-            	 gameCardLayoutPanel.add(game, 1);
+
+            	 gameInfoWindow = new GameInfoPanel(team, cardlayout, cardLayoutPanel, gameCardLayout, gameCardLayoutPanel);
+            	 gameInfoWindow.setLocation(960, 0);
+            	 gameInfoWindow.setSize(300, 800);
+            	 cardLayoutPanel.add(gameInfoWindow, 1);
+            	 
+            	 game = new Board(team, ois, oos, gameInfoWindow);
             	 game.setLocation(0, 0);
          		 game.setSize(960, 800);
-         		 
+            	 gameCardLayoutPanel.add(game, 1);
+
             	 cardlayout.next(cardLayoutPanel);
             	 gameCardLayout.next(gameCardLayoutPanel);
             	 gameInfoWindow.startTimer(1);
-//         		 gameInfoWindow.setLocation(960, 0);
-//         		 gameInfoWindow.setSize(300, 800);
-//         		 gameWindowPanel.add(gameInfoWindow);
-         		 
-//            	 gameWindow.setResizable(false);
-            	 
                  System.out.println("Created board");
                  
-                
              }
             
         }

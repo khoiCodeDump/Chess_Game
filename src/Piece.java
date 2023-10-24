@@ -130,6 +130,7 @@ public class Piece extends JButton{
 		}
 		else if(team == 2) setIcon( new ImageIcon(generateChessPieceImage(type, Color.BLACK)));
 		else setIcon(null);
+
     	removeActionListener(this.listener);
     	setActionListener(new PieceActionListener(type, i, j, team, board));
     	
@@ -139,9 +140,10 @@ public class Piece extends JButton{
     	
     	if(team == 1) {
     		setIcon( new ImageIcon(generateChessPieceImage(type, Color.WHITE)));
+    		
 		}
 		else if(team == 2) setIcon( new ImageIcon(generateChessPieceImage(type, Color.BLACK)));
-    	
+    
     	removeActionListener(this.listener);
     	setActionListener(new PieceActionListener(type, i, j, team, board));
     	

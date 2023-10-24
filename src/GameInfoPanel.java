@@ -1,33 +1,38 @@
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Stack;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
+import javax.swing.border.Border;
 
 public class GameInfoPanel extends JPanel {
 	JLabel blackTimerLabel;
 	JLabel whiteTimerLabel; 
 	JLabel currentTurn;
 	Piece[][] board;
+	JButton draw, playAgain, forfeit;
     private int blackremainingSeconds, whiteremainingSeconds, team;
     Timer blackTimer, whiteTimer;
+
     
-	GameInfoPanel(int playerTeam) {
+	GameInfoPanel(int playerTeam, CardLayout cardlayout, JPanel cardLayoutPanel, CardLayout gameCardLayout, JPanel gameCardLayoutPanel) {
 		this.team = playerTeam;
 		setLayout(new GridLayout(4, 1, 0, 0));
 		setBackground(hexToColor("312E2B"));
 		blackremainingSeconds = 10*60;
 		whiteremainingSeconds = 10*60 + 1;
-		
 		
 		blackTimer = new Timer(1000, new ActionListener() {
 	        @Override
@@ -35,7 +40,8 @@ public class GameInfoPanel extends JPanel {
 	        	blackremainingSeconds--;
 	            updateDisplay(blackremainingSeconds, blackTimerLabel);
 	            if (blackremainingSeconds <= 0) {
-	            	if(checkWinCon().equals("draw")){
+	            	String status = checkWinCon();
+	            	if(status.equals("draw")){
 	            		blackTimerLabel.setText("Draw");
 	            		whiteTimerLabel.setText("Draw");
 	            	}
@@ -43,7 +49,7 @@ public class GameInfoPanel extends JPanel {
 	            		blackTimerLabel.setText("Lose");
 	            		whiteTimerLabel.setText("Win");
 	            	}
-	            	endGame();
+	            	endGame(status);
 	            }
 	        }
 
@@ -55,7 +61,8 @@ public class GameInfoPanel extends JPanel {
 	        	whiteremainingSeconds--;
 	            updateDisplay(whiteremainingSeconds, whiteTimerLabel);
 	            if (whiteremainingSeconds <= 0) {
-	            	if(checkWinCon().equals("draw")){
+	            	String status = checkWinCon();
+	            	if(status.equals("draw")){
 	            		blackTimerLabel.setText("Draw");
 	            		whiteTimerLabel.setText("Draw");
 	            	}
@@ -63,7 +70,7 @@ public class GameInfoPanel extends JPanel {
 	            		blackTimerLabel.setText("Win");
 	            		whiteTimerLabel.setText("Lose");
 	            	}
-	            	endGame();
+	            	endGame(status);
 	            }
 	        }
 	    });
@@ -86,17 +93,63 @@ public class GameInfoPanel extends JPanel {
 	    SpringLayout springLayout = new SpringLayout();
 	    buttonPanel.setLayout(springLayout);
 		
-		JButton forfeit = new JButton("Forfeit");
+	    Border raisedbevel = BorderFactory.createRaisedBevelBorder();
+		forfeit = new JButton("Forfeit");
 		springLayout.putConstraint(SpringLayout.NORTH, forfeit, 60, SpringLayout.NORTH, buttonPanel);
 		springLayout.putConstraint(SpringLayout.WEST, forfeit, 35, SpringLayout.WEST, buttonPanel);
 		springLayout.putConstraint(SpringLayout.SOUTH, forfeit, -60, SpringLayout.SOUTH, buttonPanel);
 		springLayout.putConstraint(SpringLayout.EAST, forfeit, 139, SpringLayout.WEST, buttonPanel);
+		forfeit.setBorder(raisedbevel);
+		forfeit.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				 endGame("lose");
+			}
+			
+		});
 		
-		JButton draw = new JButton("Draw");
+		draw = new JButton("Draw");
 		springLayout.putConstraint(SpringLayout.NORTH, draw, 60, SpringLayout.NORTH, buttonPanel);
 		springLayout.putConstraint(SpringLayout.WEST, draw, -139, SpringLayout.EAST, buttonPanel);
 		springLayout.putConstraint(SpringLayout.SOUTH, draw, -60, SpringLayout.SOUTH, buttonPanel);
 		springLayout.putConstraint(SpringLayout.EAST, draw, -35, SpringLayout.EAST, buttonPanel);
+		draw.setBorder(raisedbevel);
+		draw.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				try {
+					board[0][0].out.writeObject(new Data("Draw"));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				 endGame("lose");
+			}
+			
+		});
+		
+		playAgain = new JButton("Play Again");
+		springLayout.putConstraint(SpringLayout.NORTH, playAgain, 50, SpringLayout.NORTH, buttonPanel);
+		springLayout.putConstraint(SpringLayout.WEST, playAgain, 100, SpringLayout.EAST, buttonPanel);
+		springLayout.putConstraint(SpringLayout.SOUTH, playAgain, -50, SpringLayout.SOUTH, buttonPanel);
+		springLayout.putConstraint(SpringLayout.EAST, playAgain, -100, SpringLayout.EAST, buttonPanel);
+		playAgain.setBorder(raisedbevel);
+		playAgain.setEnabled(false);
+		playAgain.setVisible(false);
+		playAgain.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				 cardlayout.next(cardLayoutPanel);
+            	 gameCardLayout.next(gameCardLayoutPanel);
+			}
+			
+		});
 		
 		forfeit.setBackground(hexToColor("#779952"));
 		forfeit.setForeground(Color.white);
@@ -104,6 +157,9 @@ public class GameInfoPanel extends JPanel {
 		draw.setBackground(hexToColor("#779952"));
 		draw.setForeground(Color.white);
 		draw.setFocusable(false);
+		playAgain.setBackground(hexToColor("#779952"));
+		playAgain.setForeground(Color.white);
+		playAgain.setFocusable(false);
 		
 		buttonPanel.add(forfeit);
 		buttonPanel.add(draw);
@@ -111,15 +167,17 @@ public class GameInfoPanel extends JPanel {
 		
 		if(team == 1) {
 			add(blackTimerLabel);
+			add(currentTurn);
+			add(buttonPanel);
+			add(whiteTimerLabel);
 		}
-		else add(whiteTimerLabel);
 		
-		add(currentTurn);
-		add(buttonPanel);
-		if(team == 1) {
-		    add(whiteTimerLabel);
+		else {
+			add(whiteTimerLabel);
+			add(currentTurn);
+			add(buttonPanel);
+			add(blackTimerLabel);
 		}
-		else add(blackTimerLabel);
 		
 	} 
 	public void setBoard(Piece[][] board) {
@@ -147,7 +205,7 @@ public class GameInfoPanel extends JPanel {
 		
 		required_piece_types_to_draw.add("Bishop");
 		required_piece_types_to_draw.add("Knight");
-		int counter = 0;
+		
 		for(String opp_piece: opponent_pieces) {
 			if(required_piece_types_to_draw.contains(opp_piece)) {
 				required_piece_types_to_draw.remove(opp_piece);
@@ -158,20 +216,33 @@ public class GameInfoPanel extends JPanel {
 			return "draw";
 			
 		}
-		
-		
 		return "lose";
 		
 	}
-	private void endGame() {
+	private void endGame(String endGameStatus) {
+		for(int i=0; i<8; i++) {
+			for(int j=0; j<8; j++) {
+				board[i][j].setEnabled(false);
+			}
+		}
+		whiteTimer.stop();
+		blackTimer.stop();
+		if(endGameStatus.equals("draw")) currentTurn.setText("Draw");
+		else if(endGameStatus.equals("win"))currentTurn.setText("Victory");
+		else currentTurn.setText("Defeat");
 		
+		forfeit.setEnabled(false);
+		draw.setEnabled(false);
+		playAgain.setEnabled(true);
+		playAgain.setVisible(true);
 	}
 	public void startTimer(int team) {
+		
 		if(team ==1) {
 			whiteTimer.start();
 			blackTimer.stop();
 		}
-		else {
+		else if (team==2){
 			blackTimer.start();
 			whiteTimer.stop();
 		}
