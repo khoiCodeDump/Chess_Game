@@ -149,7 +149,7 @@ public class PieceActionListener implements ActionListener {
 			} //end if
 			else {
 				updatePiece(0);
-
+				checkForCheckMate();
 			}
 
 		}
@@ -456,11 +456,50 @@ public class PieceActionListener implements ActionListener {
 					
 				
 			}
-	        
+	         
 		}
 	} 
 
 
+	private void checkForCheckMate(Piece[][] board) {
+		// TODO Auto-generated method stub
+		int row = 0, col = 0;
+		for(int i=0; i<8; i++) {
+			for(int j=0; j<8; j++) {
+				if(board[i][j].type.equals("King")) {
+					row = i;
+					col = j;
+					break;
+				}
+			}
+		}
+		for(int i=0; i<8; i++) {
+			if(board[i][col].team) {
+				
+			}
+		}
+		
+	}
+	private void checkKingSafety(Piece[][] board) {
+		// TODO Auto-generated method stub
+		int row = 0, col = 0;
+		for(int i=0; i<8; i++) {
+			for(int j=0; j<8; j++) {
+				if(board[i][j].type.equals("King")) {
+					row = i;
+					col = j;
+					break;
+				}
+			}
+		}
+		for(int i=0; i<8; i++) {
+			if(board[i][col].team) {
+				
+			}
+		}
+		
+	}
+	 
 	private void updatePiece(int update) {
 			try {
 				board[i][j].out.writeObject(new Data("Move", i, j, callerI, callerJ, callerTeam, callerType, update ));
