@@ -25,10 +25,11 @@ public class GameInfoPanel extends JPanel {
 	JButton draw, playAgain, forfeit;
     private int blackremainingSeconds, whiteremainingSeconds, team;
     Timer blackTimer, whiteTimer;
-
+    HashSet<Piece> history;
     
 	GameInfoPanel(int playerTeam, CardLayout cardlayout, JPanel cardLayoutPanel, CardLayout gameCardLayout, JPanel gameCardLayoutPanel) {
 		this.team = playerTeam;
+		this.history = new HashSet<>();
 		setLayout(new GridLayout(4, 1, 0, 0));
 		setBackground(hexToColor("312E2B"));
 		blackremainingSeconds = 10*60;
@@ -219,7 +220,7 @@ public class GameInfoPanel extends JPanel {
 		return "lose";
 		
 	}
-	private void endGame(String endGameStatus) {
+	public void endGame(String endGameStatus) {
 		for(int i=0; i<8; i++) {
 			for(int j=0; j<8; j++) {
 				board[i][j].setEnabled(false);

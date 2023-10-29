@@ -33,6 +33,10 @@ public class Piece extends JButton{
 	ObjectInputStream in;
 	HashSet<Piece> curPieces;
 	JPanel gamePanel;
+	Piece(String type, int team){
+		this.type = type;
+		this.team = team;
+	}
 	Piece(String type, int i, int j, int team, Piece[][] board, ObjectOutputStream oos, ObjectInputStream ois, int playerTeam, int[] currentTurn, HashSet<Piece> curPieces, GameInfoPanel gameInfoWindow, JPanel gamePanel){
 		this.gamePanel = gamePanel;
 		this.curPieces = curPieces;

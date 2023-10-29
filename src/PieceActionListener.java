@@ -3,6 +3,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.HashSet;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -76,7 +77,6 @@ public class PieceActionListener implements ActionListener {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						// TODO Auto-generated method stub
 						options.dispose();
 						updatePiece("Queen");
 					}
@@ -96,7 +96,6 @@ public class PieceActionListener implements ActionListener {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						// TODO Auto-generated method stub
 						options.dispose();
 						updatePiece("Rook");
 					}
@@ -117,7 +116,6 @@ public class PieceActionListener implements ActionListener {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						// TODO Auto-generated method stub
 						options.dispose();
 						updatePiece("Bishop");
 					}
@@ -138,7 +136,6 @@ public class PieceActionListener implements ActionListener {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						// TODO Auto-generated method stub
 						options.dispose();
 						updatePiece("Knight");
 					}
@@ -161,7 +158,7 @@ public class PieceActionListener implements ActionListener {
 		}
 		else {
 //			board[i][j].setBackground(hexToColor("#ffff33"));
-			
+			if(checkKingSafety(board[i][j]) == false) return;
 			if(!board[i][j].curPieces.isEmpty() && !board[i][j].curPieces.contains(board[i][j])) {
 				for(Piece setColor : board[i][j].curPieces) {
 					setColor.listener.unsetOverride();
@@ -213,6 +210,7 @@ public class PieceActionListener implements ActionListener {
 	        	}
 			}
 			else if(type.equals("Queen")) {
+				
 				for(int a=i; a+1 < 8; a++) {
 	        		if(board[a+1][j].team==0) {
 	        			board[a+1][j].listener.setOverride(type, team, i, j);
@@ -461,43 +459,454 @@ public class PieceActionListener implements ActionListener {
 	} 
 
 
-	private void checkForCheckMate(Piece[][] board) {
-		// TODO Auto-generated method stub
-		int row = 0, col = 0;
+	private void checkForCheckMate() {
+		Piece king = null;
+		int row=0, col=0;
 		for(int i=0; i<8; i++) {
 			for(int j=0; j<8; j++) {
-				if(board[i][j].type.equals("King")) {
-					row = i;
-					col = j;
+				if(board[i][j].playerTeam != this.team && board[i][j].type.equals("King")) {
+					king = board[i][j];
+					row=i;
+					col=j;
 					break;
 				}
 			}
 		}
-		for(int i=0; i<8; i++) {
-			if(board[i][col].team) {
+		
+		//Check which pieces around the king are able to move to. The check only assume pieces with the same team as illegal moves.
+		HashSet<Piece> legalMoves = new HashSet<>();
+		HashSet<Piece> legalMoves_clone = new HashSet<>();
+
+		legalMoves.add(king);
+		if(col+1 < 8 && board[row][col+1].team != king.team) {
+			legalMoves.add(board[row][col+1]);
+			legalMoves_clone.add(board[row][col+1]);
+
+		}
+		if(col-1 > -1 && board[row][col-1].team != king.team) {
+			legalMoves.add(board[row][col-1]);
+			legalMoves_clone.add(board[row][col+1]);
+
+		}
+		if(row+1 < 8 && board[row+1][col].team != king.team) {
+			legalMoves.add(board[row+1][col-1]);
+			legalMoves_clone.add(board[row][col+1]);
+
+		}
+		if(row-1 > -1 && board[row-1][col].team != king.team) {
+			legalMoves.add(board[row-1][col-1]);
+			legalMoves_clone.add(board[row][col+1]);
+
+		}
+		
+		if(row+1 < 8 && col+1 <8 && board[row+1][col+1].team != king.team) {
+			legalMoves.add(board[row+1][col+1]);
+			legalMoves_clone.add(board[row][col+1]);
+
+		}
+		if(row+1 < 8 && col-1 > -1 && board[row+1][col-1].team != king.team) {
+			legalMoves.add(board[row+1][col-1]);
+			legalMoves_clone.add(board[row][col+1]);
+
+		}
+		if(row-1 > -1 && col-1 > -1 && board[row-1][col-1].team != king.team) {
+			legalMoves.add(board[row-1][col-1]);
+			legalMoves_clone.add(board[row][col+1]);
+
+		}
+		if(row-1 > -1 && col+1 < 8 && board[row-1][col+1].team != king.team) {
+			legalMoves.add(board[row-1][col+1]);
+			legalMoves_clone.add(board[row][col+1]);
+
+		}
+		
+		for(Piece piece : legalMoves_clone) {
+			if(legalMoves.contains(piece)) performChecks(piece, king.team, legalMoves);
+		}
+
+		if(legalMoves.size() == 0) {
+			//checkmate
+			king.gameWindow.endGame("win");
+		}
+		else {
+			//send the legal moves to the opponent
+		}
+	}
+	private void performChecks(Piece piece, int kingTeam, HashSet<Piece> legalMoves) {
+		int col = piece.j;
+		int row = piece.i;
+		Piece curPieceVert = null;
+		Piece curPieceHorz = null;
+		//Vertical
+		//Top -> king[row+1][col]
+		for(int i=0; i<=piece.i; i++) {
+			
+			if(board[i][col].team == 0) continue;
+			if(board[i][col] == piece) {
+				if(curPieceVert != null) {
+					if(curPieceVert.team != kingTeam && (curPieceVert.type.equals("Queen") || curPieceVert.type.equals("Rook"))) {
+						legalMoves.remove(piece);
+						return;
+					
+					}
+				}
+				break;
+			}
+			else {
+				curPieceVert = board[i][col];
+			}
+		}
+		//Vertical
+		//king[row+1][col] -> bottom
+		
+		for(int i=piece.i+1; i < 8; i++) {
+			if(board[i][col].team == 0) continue;
+			if(board[i][col].team == kingTeam) break;
+			
+			if(board[i][col].team != kingTeam ) {
+				if(board[i][col].type.equals("Queen") || board[i][col].type.equals("Rook")) {
+					legalMoves.remove(piece);
+					return;
+				}
+				break;
+			}
+			
+		}		
+		//Horizontal
+		//Left -> Right
+		for(int j=0; j<=piece.j; j++) {
+
+			if(board[row][j].team == 0) continue;
+			if(board[row][j] == piece) {
+				if(curPieceHorz != null) {
+					if(curPieceHorz.team != kingTeam && (curPieceHorz.type.equals("Queen") || curPieceHorz.type.equals("Rook"))) {
+						legalMoves.remove(piece);
+						return;
+					
+					}
+				}
+				break;
+			}
+			else {
+				curPieceVert = board[row][j];
+			}		
+		}
+		for(int j=piece.j+1; j < 8; j++) {
+			if(board[row][j].team == 0) continue;
+			if(board[row][j].team == kingTeam) break;
+			
+			if(board[row][j].team != kingTeam ) {
+				if(board[row][j].type.equals("Queen") || board[row][j].type.equals("Rook")) {
+					legalMoves.remove(piece);
+					return;
+				}
+				break;
+			}
+			
+		}		
 				
+		//Diagonal check
+				
+		//Bottom-Right. This direction, pawns do not matter since it can not create a check
+		 //do not remove this line
+		for(int i=piece.i+1, j=piece.j+1; i<8 && j <8; i++, j++) {
+			if(board[i][j].team == 0) continue;
+			if(board[i][j].team == kingTeam) break;
+			else if(board[i][j].team != kingTeam) { 
+				if(board[i][j].type.equals("Queen") || board[i][j].type.equals("Bishop") ) {
+					legalMoves.remove(piece);
+					return;
+				}
+				break;
+			}
+		}
+		
+				
+		//Top-left
+		for(int i=piece.i-1, j=piece.j-1; i > -1 && j > -1; i--, j--) {
+			if(board[i][j].team == 0) continue;
+			if(board[i][j].team == kingTeam) break;
+			else if(board[i][j].team != kingTeam ){
+				if(board[i][j].type.equals("Queen") || board[i][j].type.equals("Bishop") || board[i][j].type.equals("Pawn") ) {
+					legalMoves.remove(piece);
+					return;
+				}
+				break;
+			}
+		}
+				
+				
+		//Bottom-Left
+		for(int i=row+1, j=col-1; i < 8 && j > -1; i++, j--) {
+			if(board[i][j].team == 0) continue;
+			if(board[i][j].team == kingTeam) break;
+			else if(board[i][j].team != kingTeam ){
+				if(board[i][j].type.equals("Queen") || board[i][j].type.equals("Bishop")) {
+					legalMoves.remove(piece);
+					return;
+				}
+				break;
+			}
+		}
+				
+		//Top-right	
+		for(int i=row-1, j=col+1; i > -1 && j < 8; i--, j++) {
+			if(board[i][j].team == 0) continue;
+			if(board[i][j].team == kingTeam) break;
+			else if(board[i][j].team != kingTeam ){
+				if(board[i][j].type.equals("Queen") || board[i][j].type.equals("Bishop") || board[i][j].type.equals("Pawn") ) {
+					legalMoves.remove(piece);
+					return;
+				}
+				break;
+			}
+		}
+		
+		//Knight check
+		int[][] possibleCombs = { {2,1}, {-2,-1}, {-2,1}, {2,-1}, {1,2}, {-1,-2}, {1,-2}, {-1,2}};
+		for(int[] comb : possibleCombs) {
+			int i=piece.i+comb[0];
+			int j=piece.j+comb[1];
+			if(board[i][j].type.equals("Knight") && board[i][j].team != kingTeam) {
+				legalMoves.remove(piece);
+				return;
 			}
 		}
 		
 	}
-	private void checkKingSafety(Piece[][] board) {
-		// TODO Auto-generated method stub
+
+	private boolean checkKingSafety(Piece piece) {
+		//Pinning logic
+		//Returning false == can not move piece
+		//Returning true == can move piece
+		int oppositeTeam = (piece.team == 1) ? 2 : 1;
 		int row = 0, col = 0;
 		for(int i=0; i<8; i++) {
 			for(int j=0; j<8; j++) {
-				if(board[i][j].type.equals("King")) {
+				if(board[i][j].type.equals("King") && board[i][j].team == piece.team) {
 					row = i;
 					col = j;
 					break;
 				}
 			}
 		}
-		for(int i=0; i<8; i++) {
-			if(board[i][col].team) {
+		
+		int row_diff = piece.i-row;
+		int col_diff = piece.j-col;
+		int row_diff_abs = Math.abs(row_diff);
+		int col_diff_abs = Math.abs(col_diff);
+		
+		if(row_diff_abs==col_diff_abs) { //this means the king is diagonal relative to the piece.
+			return kingSafetyDiagonalCheck(piece, row, col, col_diff, row_diff, oppositeTeam);
+		}
+		else if(col_diff==0) return kingSafetyVertCheck(piece, row, col, col_diff, row_diff, oppositeTeam);
+		else if(row_diff==0) return kingSafetyHorzCheck(piece, row, col, col_diff, row_diff, oppositeTeam);
+		
+		return true;
+	}
+	private boolean kingSafetyHorzCheck(Piece piece, int row, int col, int col_diff, int row_diff, int oppositeTeam) {
+		//king is right of piece
+		if(col_diff < 0) {
+			int startPointX = piece.i;
+			int startPointY = 0;
+			Piece curOpponentPiece = null;
+			Piece curTeamPiece = null;
+			int loopCounter = 0;
+			int curOpPieceCounter = 0;
+			int curTeamPieceCounter = 0;
+			for(; startPointY < col; startPointY++, loopCounter++) {
+				if(board[startPointX][startPointY].team == 0) continue;
+
+				if(board[startPointX][startPointY].team == oppositeTeam) {
+					curOpPieceCounter = loopCounter;
+					curOpponentPiece = board[startPointX][startPointY];
+					
+				}
+				else {
+					curTeamPieceCounter = loopCounter;
+					curTeamPiece = board[startPointX][startPointY];
+				}
 				
 			}
+			if(curTeamPiece != piece) return true;
+			if( curTeamPieceCounter < curOpPieceCounter) return true; 
+			if(curOpponentPiece.type.equals("Queen") || curOpponentPiece.type.equals("Bishop") ) {
+				return false;
+			}
 		}
+		else {
+			//the king is left of piece
+			int startPointX = row;
+			int startPointY = col+1;
+			boolean requiredPieceFound =false;
+			for(; startPointY < 8; startPointY++) {
+				if(board[startPointX][startPointY].team == 0) continue;
+
+				if(board[startPointX][startPointY] != piece && !requiredPieceFound) {
+					return true;
+				}
+				requiredPieceFound = true;
+				if(board[startPointX][startPointY].team == oppositeTeam && (board[startPointX][startPointY].type.equals("Queen") || board[startPointX][startPointY].type.equals("Bishop"))) {
+					return false;
+				}
+				else return true;
+			}
+		}
+		return true;
+	}
+	private boolean kingSafetyVertCheck(Piece piece, int row, int col, int col_diff, int row_diff, int oppositeTeam) {
+		//the king is under the piece
+		if(row_diff < 0) {
+			int startPointX = 0;
+			int startPointY = piece.j;
+			Piece curOpponentPiece = null;
+			Piece curTeamPiece = null;
+			int loopCounter = 0;
+			int curOpPieceCounter = 0;
+			int curTeamPieceCounter = 0;
+			for(; startPointX < row ; startPointX++, loopCounter++) {
+				if(board[startPointX][startPointY].team == 0) continue;
+
+				if(board[startPointX][startPointY].team == oppositeTeam) {
+					curOpPieceCounter = loopCounter;
+					curOpponentPiece = board[startPointX][startPointY];
+					
+				}
+				else {
+					curTeamPieceCounter = loopCounter;
+					curTeamPiece = board[startPointX][startPointY];
+				}
+				
+			}
+			if(curTeamPiece != piece) return true;
+			if( curTeamPieceCounter < curOpPieceCounter) return true; 
+			if(curOpponentPiece.type.equals("Queen") || curOpponentPiece.type.equals("Bishop") ) {
+				return false;
+			}
+		}
+		else {
+			//the king is above the piece
+			int startPointX = row+1;
+			int startPointY = col;
+			boolean requiredPieceFound =false;
+			for(; startPointX < 8 ; startPointX++) {
+				if(board[startPointX][startPointY].team == 0) continue;
+
+				if(board[startPointX][startPointY] != piece && !requiredPieceFound) {
+					return true;
+				}
+				requiredPieceFound = true;
+				if(board[startPointX][startPointY].team == oppositeTeam && (board[startPointX][startPointY].type.equals("Queen") || board[startPointX][startPointY].type.equals("Bishop"))) {
+					return false;
+				}
+				else return true;
+			}
+		}
+		return true;
+	}
+	private boolean kingSafetyDiagonalCheck(Piece piece, int row, int col, int col_diff, int row_diff, int oppositeTeam) {
+		int subtract_to_get_startpoint = Math.min(piece.i, piece.j);
 		
+		
+		//King is bottom right relative to the piece
+		//loop starts from edge of map
+		if(col_diff < 0 && row_diff < 0 ) {
+			int startPointX = piece.i-subtract_to_get_startpoint;
+			int startPointY = piece.j-subtract_to_get_startpoint;
+			Piece curOpponentPiece = null;
+			Piece curTeamPiece = null;
+			int loopCounter = 0;
+			int curOpPieceCounter = 0;
+			int curTeamPieceCounter = 0;
+			for(; startPointX < row && startPointY < col; startPointX++, startPointY++, loopCounter++) {
+				if(board[startPointX][startPointY].team == 0) continue;
+
+				if(board[startPointX][startPointY].team == oppositeTeam) {
+					curOpPieceCounter = loopCounter;
+					curOpponentPiece = board[startPointX][startPointY];
+					
+				}
+				else {
+					curTeamPieceCounter = loopCounter;
+					curTeamPiece = board[startPointX][startPointY];
+				}
+				
+			}
+			if(curTeamPiece != piece) return true;
+			if( curTeamPieceCounter < curOpPieceCounter) return true; 
+			if(curOpponentPiece.type.equals("Queen") || curOpponentPiece.type.equals("Bishop") ) {
+				return false;
+			}
+		}
+		//King piece is top-left relative to the piece
+		//loop starts from king
+		else if(col_diff > 0 && row_diff > 0){
+			int startPointX = row+1;
+			int startPointY = col+1;
+			boolean requiredPieceFound =false;
+			for(; startPointX < 8 && startPointY < 8; startPointX++, startPointY++) {
+				if(board[startPointX][startPointY].team == 0) continue;
+
+				if(board[startPointX][startPointY] != piece && !requiredPieceFound) {
+					return true;
+				}
+				requiredPieceFound = true;
+				if(board[startPointX][startPointY].team == oppositeTeam && (board[startPointX][startPointY].type.equals("Queen") || board[startPointX][startPointY].type.equals("Bishop"))) {
+					return false;
+				}
+				else return true;
+			}
+		}
+		//King piece is top-right relative to the piece
+		//loop starts from edge of map
+		else if(col_diff < 0 && row_diff > 0) { 
+			int startPointX = piece.i-subtract_to_get_startpoint;
+			int startPointY = piece.j+subtract_to_get_startpoint;
+			Piece curOpponentPiece = null;
+			Piece curTeamPiece = null;
+			int loopCounter = 0;
+			int curOpPieceCounter = 0;
+			int curTeamPieceCounter = 0;
+			for(; startPointX > row && startPointY < col; startPointX--, startPointY++, loopCounter++) {
+				if(board[startPointX][startPointY].team == 0) continue;
+
+				if(board[startPointX][startPointY].team == oppositeTeam) {
+					curOpPieceCounter = loopCounter;
+					curOpponentPiece = board[startPointX][startPointY];
+					
+				}
+				else {
+					curTeamPieceCounter = loopCounter;
+					curTeamPiece = board[startPointX][startPointY];
+				}
+				
+			}
+			if(curTeamPiece != piece) return true;
+			if( curTeamPieceCounter < curOpPieceCounter) return true; 
+			if(curOpponentPiece.type.equals("Queen") || curOpponentPiece.type.equals("Bishop") ) {
+				return false;
+			}
+		}
+		else {
+			//King piece is bottom-left relative to the piece
+			//loop starts from king
+			int startPointX = row-1;
+			int startPointY = col+1;
+			boolean requiredPieceFound =false;
+			for(; startPointX > -1 && startPointY < 8; startPointX++, startPointY++) {
+				if(board[startPointX][startPointY].team == 0) continue;
+
+				if(board[startPointX][startPointY] != piece && !requiredPieceFound) {
+					return true;
+				}
+				requiredPieceFound = true;
+				if(board[startPointX][startPointY].team == oppositeTeam && (board[startPointX][startPointY].type.equals("Queen") || board[startPointX][startPointY].type.equals("Bishop"))) {
+					return false;
+				}
+				else return true;
+			}
+		}
+		return true;
 	}
 	 
 	private void updatePiece(int update) {
