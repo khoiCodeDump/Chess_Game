@@ -56,7 +56,37 @@ public class PieceActionListener implements ActionListener {
 		
 		
 		if(callerType != null) {
-			if(callerType.equals("Pawn") && i==0) {
+			if(callerType.equals("King") && board[i][j].gameWindow.history.isEmpty() && this.callerI == 7 ) {
+				if(callerTeam == 1 && this.callerJ == 4) {
+					if(this.j == 2) {
+						updatePiece(0);
+						board[i][j+1].updatePiece("Rook", callerTeam);
+						board[i][j].gameWindow.history.add(board[7][0].type);
+						board[7][0].updatePiece("Empty");
+					}
+					else if(this.j==6) {
+						updatePiece(0);
+						board[i][j-1].updatePiece("Rook", callerTeam);
+						board[i][j].gameWindow.history.add(board[7][7].type);
+						board[7][7].updatePiece("Empty");
+					}
+				}
+				else if(callerTeam == 2 && this.callerJ == 3) {
+					if(this.j==1) {
+						updatePiece(0);
+						board[i][j+1].updatePiece("Rook", callerTeam);
+						board[i][j].gameWindow.history.add(board[7][0].type);
+						board[7][0].updatePiece("Empty");
+					}
+					else if(this.j==5) {
+						updatePiece(0);
+						board[i][j-1].updatePiece("Rook", callerTeam);
+						board[i][j].gameWindow.history.add(board[7][7].type);
+						board[7][7].updatePiece("Empty");
+					}
+				}
+			}
+			else if(callerType.equals("Pawn") && i==0) {
 				updatePiece(1);
 				System.out.println("In dialog creation");
 				JDialog options = new JDialog();
@@ -148,6 +178,9 @@ public class PieceActionListener implements ActionListener {
 				updatePiece(0);
 				checkForCheckMate();
 			}
+			if(board[i][j].type.equals("Rook") || board[i][j].type.equals("King")) board[i][j].gameWindow.history.add(board[i][j].type);
+			
+
 
 		}
 		else if(board[i][j].playerTeam != this.team) {
@@ -166,7 +199,7 @@ public class PieceActionListener implements ActionListener {
 				board[i][j].curPieces.clear();
 				
 			}
-			if(type.equals("King")) {
+			if(type.equals("King")) { 
 				if(i+1 < 8 && board[i+1][j].team != this.team) {
 	        		board[i+1][j].listener.setOverride(type, team, i, j);
 	        		board[i][j].curPieces.add(board[i+1][j]);
@@ -208,6 +241,36 @@ public class PieceActionListener implements ActionListener {
 	        		board[i][j].curPieces.add(board[i-1][j+1]);
 
 	        	}
+	        	
+	        	if( board[i][j].gameWindow.history.isEmpty()) {
+	        		HashSet<Piece> legalMovesForCastle = new HashSet<>();
+
+	        		if(board[i][j-1].team == 0 && board[i][j-2].team == 0) {
+	        			legalMovesForCastle.add(board[i][j-1]);
+	        			performChecks(board[i][j-1], board[i][j].team, legalMovesForCastle);
+	        			if(legalMovesForCastle.size() > 0) {
+	        				legalMovesForCastle.add(board[i][j-2]);
+		        			performChecks(board[i][j-2], board[i][j].team, legalMovesForCastle);
+	        			}
+	        			if(legalMovesForCastle.size()> 1) {
+	        				board[i][j-2].listener.setOverride(type, team, i, j);
+	    	        		board[i][j].curPieces.add(board[i][j-2]);
+	        			}
+	        		}
+	        		if(board[i][j+1].team == 0 && board[i][j+2].team == 0) {
+	        			legalMovesForCastle.add(board[i][j+1]);
+	        			performChecks(board[i][j+1], board[i][j].team, legalMovesForCastle);
+	        			if(legalMovesForCastle.size() > 0) {
+	        				legalMovesForCastle.add(board[i][j+2]);
+		        			performChecks(board[i][j+2], board[i][j].team, legalMovesForCastle);
+	        			}
+	        			if(legalMovesForCastle.size()> 1) {
+	        				board[i][j+2].listener.setOverride(type, team, i, j);
+	    	        		board[i][j].curPieces.add(board[i][j+2]);
+	        			}
+	        		}
+	        	}
+	        	
 			}
 			else if(type.equals("Queen")) {
 				
@@ -536,24 +599,18 @@ public class PieceActionListener implements ActionListener {
 		int col = piece.j;
 		int row = piece.i;
 		Piece curPieceVert = null;
-		Piece curPieceHorz = null;
 		//Vertical
 		//Top -> king[row+1][col]
-		for(int i=0; i<=piece.i; i++) {
+		for(int i=0; i<piece.i; i++) {
 			
 			if(board[i][col].team == 0) continue;
-			if(board[i][col] == piece) {
-				if(curPieceVert != null) {
-					if(curPieceVert.team != kingTeam && (curPieceVert.type.equals("Queen") || curPieceVert.type.equals("Rook"))) {
-						legalMoves.remove(piece);
-						return;
-					
-					}
-				}
-				break;
-			}
-			else {
-				curPieceVert = board[i][col];
+			curPieceVert = board[i][col];
+		}
+		if(curPieceVert != null) {
+			if(curPieceVert.team != kingTeam && (curPieceVert.type.equals("Queen") || curPieceVert.type.equals("Rook"))) {
+				legalMoves.remove(piece);
+				return;
+			
 			}
 		}
 		//Vertical
@@ -572,24 +629,23 @@ public class PieceActionListener implements ActionListener {
 			}
 			
 		}		
+		
+		Piece curPieceHorz = null;
+
 		//Horizontal
 		//Left -> Right
-		for(int j=0; j<=piece.j; j++) {
+		for(int j=0; j<piece.j; j++) {
 
 			if(board[row][j].team == 0) continue;
-			if(board[row][j] == piece) {
-				if(curPieceHorz != null) {
-					if(curPieceHorz.team != kingTeam && (curPieceHorz.type.equals("Queen") || curPieceHorz.type.equals("Rook"))) {
-						legalMoves.remove(piece);
-						return;
-					
-					}
-				}
-				break;
+			curPieceHorz = board[row][j];
+				
+		}
+		if(curPieceHorz != null) {
+			if(curPieceHorz.team != kingTeam && (curPieceHorz.type.equals("Queen") || curPieceHorz.type.equals("Rook"))) {
+				legalMoves.remove(piece);
+				return;
+			
 			}
-			else {
-				curPieceVert = board[row][j];
-			}		
 		}
 		for(int j=piece.j+1; j < 8; j++) {
 			if(board[row][j].team == 0) continue;
@@ -667,10 +723,15 @@ public class PieceActionListener implements ActionListener {
 		for(int[] comb : possibleCombs) {
 			int i=piece.i+comb[0];
 			int j=piece.j+comb[1];
-			if(board[i][j].type.equals("Knight") && board[i][j].team != kingTeam) {
-				legalMoves.remove(piece);
-				return;
+			try {
+				if(board[i][j].type.equals("Knight") && board[i][j].team != kingTeam) {
+					legalMoves.remove(piece);
+					return;
+				}	
+			} catch(Exception e) {
+				continue;
 			}
+			
 		}
 		
 	}
@@ -728,6 +789,7 @@ public class PieceActionListener implements ActionListener {
 				}
 				
 			}
+			if(curOpponentPiece == null) return true;
 			if(curTeamPiece != piece) return true;
 			if( curTeamPieceCounter < curOpPieceCounter) return true; 
 			if(curOpponentPiece.type.equals("Queen") || curOpponentPiece.type.equals("Bishop") ) {
@@ -778,6 +840,7 @@ public class PieceActionListener implements ActionListener {
 				}
 				
 			}
+			if(curOpponentPiece == null) return true;
 			if(curTeamPiece != piece) return true;
 			if( curTeamPieceCounter < curOpPieceCounter) return true; 
 			if(curOpponentPiece.type.equals("Queen") || curOpponentPiece.type.equals("Bishop") ) {
@@ -832,6 +895,7 @@ public class PieceActionListener implements ActionListener {
 				}
 				
 			}
+			if(curOpponentPiece == null) return true;
 			if(curTeamPiece != piece) return true;
 			if( curTeamPieceCounter < curOpPieceCounter) return true; 
 			if(curOpponentPiece.type.equals("Queen") || curOpponentPiece.type.equals("Bishop") ) {
@@ -881,6 +945,7 @@ public class PieceActionListener implements ActionListener {
 				}
 				
 			}
+			if(curOpponentPiece == null) return true;
 			if(curTeamPiece != piece) return true;
 			if( curTeamPieceCounter < curOpPieceCounter) return true; 
 			if(curOpponentPiece.type.equals("Queen") || curOpponentPiece.type.equals("Bishop") ) {

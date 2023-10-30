@@ -25,7 +25,7 @@ public class GameInfoPanel extends JPanel {
 	JButton draw, playAgain, forfeit;
     private int blackremainingSeconds, whiteremainingSeconds, team;
     Timer blackTimer, whiteTimer;
-    HashSet<Piece> history;
+    HashSet<String> history;
     
 	GameInfoPanel(int playerTeam, CardLayout cardlayout, JPanel cardLayoutPanel, CardLayout gameCardLayout, JPanel gameCardLayoutPanel) {
 		this.team = playerTeam;
