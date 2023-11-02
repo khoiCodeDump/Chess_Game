@@ -489,7 +489,7 @@ public class PieceActionListener implements ActionListener {
 			}
 	        	
 			else if(type.equals("Bishop")) {
-for(int a=i, b=j; a+1 <8 && b+1 < 8; a++, b++) {
+				for(int a=i, b=j; a+1 <8 && b+1 < 8; a++, b++) {
 	        		
 	        		if(board[a+1][b+1].team == 0) {
 	        			board[a+1][b+1].listener.setOverride(type, team, i, j);
