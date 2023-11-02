@@ -55,7 +55,8 @@ public class PlayerThread extends Thread {
 						else game.updateGameState(this, game.player1, data);	
 					}
 					else if(data.command.equals("End")) {
-						game.endGame(this);
+						game.endGame(this, data);
+						
 					}
 					else if(data.command.equals("Cancel")){
 						lobby.dequeue(this);

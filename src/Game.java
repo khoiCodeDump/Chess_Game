@@ -58,12 +58,12 @@ public class Game{
 //			}
 //		}
 //	}
-	public void endGame(PlayerThread player) {
+	public void endGame(PlayerThread player, Data data) {
 		player1.game= null;
 		player2.game = null;
 		if(player == player1) {
 			try {
-				player2.out.writeObject(new Data("End", -1));
+				player2.out.writeObject(data);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -71,7 +71,7 @@ public class Game{
 		}
 		else {
 			try {
-				player1.out.writeObject(new Data("End", -1));
+				player1.out.writeObject(data);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

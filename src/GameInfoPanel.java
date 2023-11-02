@@ -9,8 +9,11 @@ import java.util.HashSet;
 import java.util.Stack;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
@@ -27,7 +30,7 @@ public class GameInfoPanel extends JPanel {
     Timer blackTimer, whiteTimer;
     HashSet<String> history;
     
-	GameInfoPanel(int playerTeam, CardLayout cardlayout, JPanel cardLayoutPanel, CardLayout gameCardLayout, JPanel gameCardLayoutPanel) {
+	GameInfoPanel(int playerTeam, CardLayout cardlayout, JPanel cardLayoutPanel, CardLayout gameCardLayout, JPanel gameCardLayoutPanel, JPanel gameWindowPanel) {
 		this.team = playerTeam;
 		this.history = new HashSet<>();
 		setLayout(new GridLayout(4, 1, 0, 0));
@@ -128,16 +131,19 @@ public class GameInfoPanel extends JPanel {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				 endGame("lose");
+				JPanel loadingPanel = loadingPanel();
+				loadingPanel.setLocation(960, 0);
+				loadingPanel.setSize(350, 200);
+				gameWindowPanel.add(loadingPanel);
 			}
 			
 		});
 		
 		playAgain = new JButton("Play Again");
-		springLayout.putConstraint(SpringLayout.NORTH, playAgain, 50, SpringLayout.NORTH, buttonPanel);
-		springLayout.putConstraint(SpringLayout.WEST, playAgain, 100, SpringLayout.EAST, buttonPanel);
-		springLayout.putConstraint(SpringLayout.SOUTH, playAgain, -50, SpringLayout.SOUTH, buttonPanel);
-		springLayout.putConstraint(SpringLayout.EAST, playAgain, -100, SpringLayout.EAST, buttonPanel);
+		springLayout.putConstraint(SpringLayout.NORTH, playAgain, 60, SpringLayout.NORTH, buttonPanel);
+		springLayout.putConstraint(SpringLayout.WEST, playAgain, 50, SpringLayout.WEST, buttonPanel);
+		springLayout.putConstraint(SpringLayout.SOUTH, playAgain, -60, SpringLayout.SOUTH, buttonPanel);
+		springLayout.putConstraint(SpringLayout.EAST, playAgain, 250, SpringLayout.WEST, buttonPanel);
 		playAgain.setBorder(raisedbevel);
 		playAgain.setEnabled(false);
 		playAgain.setVisible(false);
@@ -145,9 +151,9 @@ public class GameInfoPanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				 cardlayout.next(cardLayoutPanel);
             	 gameCardLayout.next(gameCardLayoutPanel);
+            	 
 			}
 			
 		});
@@ -163,7 +169,8 @@ public class GameInfoPanel extends JPanel {
 		playAgain.setFocusable(false);
 		
 		buttonPanel.add(forfeit);
-		buttonPanel.add(draw);
+//		buttonPanel.add(draw);
+		buttonPanel.add(playAgain);
 		buttonPanel.setBackground(hexToColor("312E2B"));
 		
 		if(team == 1) {
@@ -181,6 +188,40 @@ public class GameInfoPanel extends JPanel {
 		}
 		
 	} 
+	private JPanel loadingPanel() {
+	    JPanel panel = new JPanel();
+	    BoxLayout layoutMgr = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
+	    panel.setLayout(layoutMgr);
+
+	  
+	    ImageIcon imageIcon = new ImageIcon("images/Rhombus.gif");
+	    JLabel iconLabel = new JLabel();
+	    iconLabel.setIcon(imageIcon);
+	    imageIcon.setImageObserver(iconLabel);
+
+	    JLabel label = new JLabel("Loading...");
+	    panel.add(iconLabel);
+	    panel.add(label);
+	    JButton cancel = new JButton();
+	    cancel.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					//2 cancel
+					board[0][0].out.writeObject(new Data("Draw_request",2));
+					panel.setEnabled(false);
+					panel.setVisible(false);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+	    	
+	    });
+	    panel.add(cancel);
+	    
+	    return panel;
+	}
 	public void setBoard(Piece[][] board) {
 		this.board = board;
 	}
@@ -226,14 +267,65 @@ public class GameInfoPanel extends JPanel {
 				board[i][j].setEnabled(false);
 			}
 		}
+		
+		try {
+			//0 Draw
+			//1 Win
+			//2 Lose
+			if(endGameStatus.equals("draw")) {
+				board[0][0].out.writeObject(new Data("End", 0));
+				currentTurn.setText("Draw");
+			}
+			else if(endGameStatus.equals("win")) {
+				board[0][0].out.writeObject(new Data("End", 2));
+				currentTurn.setText("Victory");
+			}
+			
+			else {
+				board[0][0].out.writeObject(new Data("End", 1));
+				currentTurn.setText("Defeat");
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		whiteTimer.stop();
 		blackTimer.stop();
-		if(endGameStatus.equals("draw")) currentTurn.setText("Draw");
-		else if(endGameStatus.equals("win"))currentTurn.setText("Victory");
-		else currentTurn.setText("Defeat");
 		
 		forfeit.setEnabled(false);
 		draw.setEnabled(false);
+		forfeit.setVisible(false);
+		draw.setVisible(false);
+		playAgain.setEnabled(true);
+		playAgain.setVisible(true);
+	}
+	public void endGame(int endGameStatus) {
+		for(int i=0; i<8; i++) {
+			for(int j=0; j<8; j++) {
+				board[i][j].setEnabled(false);
+			}
+		}
+		//0 Draw
+		//1 Win
+		//2 Lose
+		
+		if(endGameStatus== 0) {
+			currentTurn.setText("Draw");
+		}
+		else if(endGameStatus ==1) {
+			currentTurn.setText("Victory");
+		}
+		else {
+			currentTurn.setText("Defeat");
+		}
+		
+		whiteTimer.stop();
+		blackTimer.stop();
+		
+		forfeit.setEnabled(false);
+		draw.setEnabled(false);
+		forfeit.setVisible(false);
+		draw.setVisible(false);
 		playAgain.setEnabled(true);
 		playAgain.setVisible(true);
 	}

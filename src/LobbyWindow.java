@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -15,39 +14,23 @@ import javax.swing.JButton;
 
 public class LobbyWindow extends JPanel {
 
+	private static final long serialVersionUID = 1L;
 	int time = 0;
 	Timer queueTimer;
-	/**
-	 * Launch the application.
-	 */
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					LobbyWindow frame = new LobbyWindow();
-//					frame.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
-
-	/**
-	 * Create the frame.
-	 */
+	JLabel timeLabel ;
+	JButton queueUp;
 	public LobbyWindow(ObjectInputStream in, ObjectOutputStream out) {
 		setBounds(100, 100, 450, 300);
 		setBorder(new EmptyBorder(5, 5, 5, 5));
 		setBackground(hexToColor("312E2B"));
        
 		
-		JButton queueUp = new JButton("Play");
+		queueUp = new JButton("Play");
 		queueUp.setBackground(hexToColor("#779952"));
 		queueUp.setForeground(Color.white);
 		queueUp.setFocusable(false);
 		queueUp.setSize(100, 80);
-		JLabel timeLabel = new JLabel();
+		timeLabel = new JLabel();
 		timeLabel.setForeground(Color.WHITE);
 		queueTimer = new Timer(1000, new ActionListener() {
 
@@ -55,7 +38,6 @@ public class LobbyWindow extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				int minutes = time / 60;
 			    int seconds = time % 60;
-				// TODO Auto-generated method stub
 				 String timeF = String.format("%02d:%02d", minutes, seconds); 
 				 timeLabel.setText(timeF);
 				 time++;
@@ -66,7 +48,6 @@ public class LobbyWindow extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				try {
 					if(queueUp.getText().equals("Play")) {
 						out.writeObject(new Data("Queue", -1));
@@ -78,11 +59,9 @@ public class LobbyWindow extends JPanel {
 						out.writeObject(new Data("Cancel", -1));
 						out.flush();
 						queueUp.setText("Play");
-						queueTimer.stop();
-						time = 0;
+						resetTimer();
 					}
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -96,7 +75,8 @@ public class LobbyWindow extends JPanel {
 	public void resetTimer() {
 		queueTimer.stop();
 		time = 0;
-		
+		timeLabel.setText("");
+		queueUp.setText("Play");
 	}
 	public Color hexToColor(String hex) {
         // Remove the "#" symbol if present

@@ -152,4 +152,16 @@ public class Piece extends JButton{
     	setActionListener(new PieceActionListener(type, i, j, team, board));
     	
     }
+    public void castleUpdatePiece(int team) {
+    	this.type = "Rook";
+    	this.team = team;
+    	if(team == 1) {
+    		setIcon( new ImageIcon(generateChessPieceImage("Rook", Color.WHITE)));
+    		
+		}
+		else if(team == 2) setIcon( new ImageIcon(generateChessPieceImage("Rook", Color.BLACK)));
+    
+    	removeActionListener(this.listener);
+    	setActionListener(new PieceActionListener("Rook", i, j, team, board));
+    }
 }

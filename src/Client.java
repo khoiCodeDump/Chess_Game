@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 
@@ -64,7 +65,7 @@ public class Client {
         //Game.java writeInt() to the Client
         gameWindow = new JFrame();
    	 	gameWindow.setBounds(100, 100, 1260, 839);
-   	 	
+   	 	gameWindow.setDefaultCloseOperation(gameWindow.DISPOSE_ON_CLOSE);
    	    gameWindowPanel = new JPanel();
    	    gameWindowPanel.setLayout(null);
    	    gameWindow.setContentPane(gameWindowPanel);
@@ -91,6 +92,7 @@ public class Client {
    	 	lobbyWindow.setLocation(960, 0);
    	 	lobbyWindow.setSize(300, 800);
    	 	
+   	 	
    	 	cardLayoutPanel.add(lobbyWindow, 0);
 	   	
 	   	gameWindowPanel.add(gameCardLayoutPanel);
@@ -116,8 +118,54 @@ public class Client {
             	 else gameInfoWindow.startTimer(1);
             	 gameInfoWindow.updateCurTurn();
              }
+             else if(message.command.equals("Castle_update")) {
+            	 int[] reflectedRook = moveReflection(message.i, message.j);
+            	 int[] reflectedEmpty = moveReflection(message.callerI, message.callerJ);
+            	 game.pieces[reflectedRook[0]][reflectedRook[1]].castleUpdatePiece(message.callerTeam);
+            	 game.pieces[reflectedEmpty[0]][reflectedEmpty[1]].updatePiece("Empty", 0);
+//            	 if(gameInfoWindow.whiteTimer.isRunning()) gameInfoWindow.startTimer(2);
+//            	 else gameInfoWindow.startTimer(1);
+//        		 gameInfoWindow.updateCurTurn();
+
+             }
+             else if(message.command.equals("Draw_request")) {
+            	 //0 no
+            	 //1 yes
+            	 //2 cancel
+            	 if(message.team ==2 || message.team == 0) {
+            		 for(int i=0; i<8; i++) {
+                		 for(int j=0; j<8; j++) {
+                			 game.pieces[i][j].setEnabled(true);
+                		 }
+                	 }
+            	 }
+            	 else {
+             		gameInfoWindow.endGame(0);
+            	 }
+             }
              else if(message.command.equals("Draw")) {
+            	 int choice = JOptionPane.showConfirmDialog(gameCardLayoutPanel, "Draw?", "Draw request", JOptionPane.YES_NO_OPTION);
+            	 for(int i=0; i<8; i++) {
+            		 for(int j=0; j<8; j++) {
+            			 game.pieces[i][j].setEnabled(false);
+            		 }
+            	 }
             	 
+            	 if(choice == JOptionPane.YES_OPTION) {
+            		 gameInfoWindow.endGame(0);
+            		 //0 no
+            		 //1 yes
+            		 oos.writeObject(new Data("Draw_request", 1));
+            	 }
+            	 else {
+            		 oos.writeObject(new Data("Draw_request", 0));
+
+            		 for(int i=0; i<8; i++) {
+                		 for(int j=0; j<8; j++) {
+                			 game.pieces[i][j].setEnabled(true);
+                		 }
+                	 }
+            	 }
              }
              else if(message.command.equals("Move")) {
             	 
@@ -136,18 +184,18 @@ public class Client {
             	
              }
              else if(message.command.equals("End")) {
-            	 team = -1;
-            	 game = null;
-            	 gameWindow.dispose();
-            	 
+            	//0 Draw
+     			//1 Win
+     			//2 Lose
+        		gameInfoWindow.endGame(message.team);
              }
              else if(message.command.equals("Start")) {
-            	 
+            	 ((LobbyWindow) lobbyWindow).resetTimer();
             	 team = message.team;
             	 if(team == 1)gameWindow.setTitle("Team White");
                  else gameWindow.setTitle("Team Black");
 
-            	 gameInfoWindow = new GameInfoPanel(team, cardlayout, cardLayoutPanel, gameCardLayout, gameCardLayoutPanel);
+            	 gameInfoWindow = new GameInfoPanel(team, cardlayout, cardLayoutPanel, gameCardLayout, gameCardLayoutPanel, gameWindowPanel);
             	 gameInfoWindow.setLocation(960, 0);
             	 gameInfoWindow.setSize(300, 800);
             	 cardLayoutPanel.add(gameInfoWindow, 1);

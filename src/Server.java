@@ -21,10 +21,6 @@ public class Server {
 
 	        
 	    }
-	    public synchronized void checkQueue(PlayerThread player) {
-	    	
-	    }
-	    
 	   
 }
 
