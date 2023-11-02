@@ -425,51 +425,132 @@ public class PieceActionListener implements ActionListener {
 			}
 	        
 			else if(type.equals("Rook")) {
-				for(int a=i; a+1 < 8 && board[a+1][j].team != this.team; a++) {
+	        	for(int a=i; a+1 < 8; a++) {
+	        		if(board[a+1][j].team==0) {
+	        			board[a+1][j].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[a+1][j]);
+	        		}
+	        		else if(board[a+1][j].team != this.team) {
+	        			board[a+1][j].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[a+1][j]);
+		        		break;
+	        		}
+	        		else if(board[a+1][j].team == this.team) {
+	        			break;
+	        		} 
 	        		
-	        		board[a+1][j].listener.setOverride(type, team, i, j);
-	        		board[i][j].curPieces.add(board[a+1][j]);
+	        	}
+	        	for(int a=i; a-1 > -1 ; a--) {
+	        		if(board[a-1][j].team == 0) {
+	        			board[a-1][j].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[a-1][j]);
+	        		}
+	        		else if(board[a-1][j].team != this.team) {
+	        			board[a-1][j].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[a-1][j]);
+		        		break;
+	        		}
+	        		else if(board[a-1][j].team == this.team) {
+	        			break;
+	        		}        		
+	        	}
+	        	for(int a=j; a-1 > -1; a--) {
 	        		
+	        		if(board[i][a-1].team == 0) {
+	        			board[i][a-1].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[i][a-1]);
+	        		}
+	        		else if(board[i][a-1].team != this.team) {
+	        			board[i][a-1].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[i][a-1]);
+		        		break;
+	        		}
+	        		else if(board[i][a-1].team == this.team) {
+	        			break;
+	        		}      
 
 	        	}
-	        	for(int a=i; a-1 > -1 && board[a-1][j].team != this.team; a--) {
-	        		board[a-1][j].listener.setOverride(type, team, i, j);
-	        		board[i][j].curPieces.add(board[a-1][j]);
+	        	for(int a=j; a+1 < 8; a++) {
+	        		
+	        		if(board[i][a+1].team == 0) {
+	        			board[i][a+1].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[i][a+1]);
+	        		}
+	        		else if(board[i][a+1].team != this.team) {
+	        			board[i][a+1].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[i][a+1]);
+		        		break;
+	        		}
+	        		else if(board[i][a+1].team == this.team) {
+	        			break;
+	        		}      
 
-	        	}
-	        	for(int a=j; a-1 > -1 && board[i][a-1].team != this.team; a--) {
-	        		board[i][a-1].listener.setOverride(type, team, i, j);
-	        		board[i][j].curPieces.add(board[i][a-1]);
-
-	        	}
-	        	for(int a=j; a+1 < 8 && board[i][a+1].team != this.team; a++) {
-	        		board[i][a+1].listener.setOverride(type, team, i, j);
-	        		board[i][j].curPieces.add(board[i][a+1]);
-
-	        	}
+	        	}	        	
 			}
 	        	
 			else if(type.equals("Bishop")) {
-				for(int a=i, b=j; a+1 <8 && b+1 < 8 && board[i+1][j+1].team != this.team; a++, b++) {
-	        		board[a+1][b+1].listener.setOverride(type, team, i, j);
-	        		board[i][j].curPieces.add(board[a+1][b+1]);
+for(int a=i, b=j; a+1 <8 && b+1 < 8; a++, b++) {
+	        		
+	        		if(board[a+1][b+1].team == 0) {
+	        			board[a+1][b+1].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[a+1][b+1]);
+	        		}
+	        		else if(board[a+1][b+1].team != this.team) {
+	        			board[a+1][b+1].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[a+1][b+1]);
+		        		break;
+	        		}
+	        		else if(board[a+1][b+1].team == this.team) {
+	        			break;
+	        		}      
 
 	        	}
-	        	for(int a=i, b=j; a-1 > -1 && b-1 > -1 && board[a-1][b-1].team != this.team; a--, b--) {
-	        		board[a-1][b-1].listener.setOverride(type, team, i, j);
-	        		board[i][j].curPieces.add(board[a-1][b-1]);
-
+	        	for(int a=i, b=j; a-1 > -1 && b-1 > -1; a--, b--) {
+	        		
+	        		if(board[a-1][b-1].team == 0) {
+	        			board[a-1][b-1].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[a-1][b-1]);
+	        		}
+	        		else if(board[a-1][b-1].team != this.team) {
+	        			board[a-1][b-1].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[a-1][b-1]);
+		        		break;
+	        		}
+	        		else if(board[a-1][b-1].team == this.team) {
+	        			break;
+	        		}      
 
 	        	}
-	        	for(int a=i, b=j; a+1 <8 && b-1 > -1 && board[a+1][b-1].team != this.team; a++, b--) {
-	        		board[a+1][b-1].listener.setOverride(type, team, i, j);
-	        		board[i][j].curPieces.add(board[a+1][b-1]);
-
+	        	for(int a=i, b=j; a+1 <8 && b-1 > -1; a++, b--) {
+	        		
+	        		if(board[a+1][b-1].team == 0) {
+	        			board[a+1][b-1].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[a+1][b-1]);
+	        		}
+	        		else if(board[a+1][b-1].team != this.team) {
+	        			board[a+1][b-1].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[a+1][b-1]);
+		        		break;
+	        		}
+	        		else if(board[a+1][b-1].team == this.team) {
+	        			break;
+	        		}      
 
 	        	}
-	        	for(int a=i, b=j; a-1 > -1 && b+1 < 8 && board[a-1][b+1].team != this.team; a--, b++) {
-	        		board[a-1][b+1].listener.setOverride(type, team, i, j);
-	        		board[i][j].curPieces.add(board[a-1][b+1]);
+	        	for(int a=i, b=j; a-1 > -1 && b+1 < 8; a--, b++) {
+	        		
+	        		if(board[a-1][b+1].team == 0) {
+	        			board[a-1][b+1].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[a-1][b+1]);
+	        		}
+	        		else if(board[a-1][b+1].team != this.team) {
+	        			board[a-1][b+1].listener.setOverride(type, team, i, j);
+		        		board[i][j].curPieces.add(board[a-1][b+1]);
+		        		break;
+	        		}
+	        		else if(board[a-1][b+1].team == this.team) {
+	        			break;
+	        		}      
 
 	        	}
 			}

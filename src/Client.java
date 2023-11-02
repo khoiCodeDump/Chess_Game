@@ -64,6 +64,7 @@ public class Client {
         //Waiting for PlayerThread to initialize Game.java
         //Game.java writeInt() to the Client
         gameWindow = new JFrame();
+        gameWindow.setResizable(false);
    	 	gameWindow.setBounds(100, 100, 1260, 839);
    	 	gameWindow.setDefaultCloseOperation(gameWindow.DISPOSE_ON_CLOSE);
    	    gameWindowPanel = new JPanel();
