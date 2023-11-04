@@ -15,7 +15,7 @@ public class PieceActionListener implements ActionListener {
 	Piece[][] board;
 	String callerType;
 	int callerI, callerJ;
-
+	private HashSet<Piece> listOfMoveableMoves;
 	PieceActionListener(String type, int i, int j, int team, Piece[][] board){
 		this.type = type;
 		this.team = team;
@@ -61,9 +61,6 @@ public class PieceActionListener implements ActionListener {
 					if(this.j == 2) {
 						updatePiece(0);
 						castleUpdatePiece(i, j+1, 7, 0, callerTeam);
-//						board[i][j+1].castleUpdatePiece(callerTeam);
-//						board[7][0].updatePiece("Empty", 0);
-
 						board[i][j].gameWindow.history.add(board[7][0].type);
 						board[i][j].gameWindow.history.add(callerType);
 
@@ -71,9 +68,6 @@ public class PieceActionListener implements ActionListener {
 					else if(this.j==6) {
 						updatePiece(0);
 						castleUpdatePiece(i, j-1, 7, 7, callerTeam);
-//						board[i][j-1].castleUpdatePiece(callerTeam);
-//						board[7][7].updatePiece("Empty", 0);
-
 						board[i][j].gameWindow.history.add(board[7][7].type);
 						board[i][j].gameWindow.history.add(callerType);
 
@@ -83,10 +77,6 @@ public class PieceActionListener implements ActionListener {
 					if(this.j==1) {
 						updatePiece(0);
 						castleUpdatePiece(i, j+1, 7, 0, callerTeam);
-
-//						board[i][j+1].castleUpdatePiece(callerTeam);
-//						board[7][0].updatePiece("Empty", 0);
-
 						board[i][j].gameWindow.history.add(board[7][0].type);
 						board[i][j].gameWindow.history.add(callerType);
 
@@ -94,17 +84,13 @@ public class PieceActionListener implements ActionListener {
 					else if(this.j==5) {
 						updatePiece(0);
 						castleUpdatePiece(i, j-1, 7, 7, callerTeam);
-
-//						board[i][j-1].castleUpdatePiece(callerTeam);
-//						board[7][7].updatePiece("Empty", 0);
-
 						board[i][j].gameWindow.history.add(board[7][7].type);
 						board[i][j].gameWindow.history.add(callerType);
 
 					}
 				}
 			}
-			else if(callerType.equals("Pawn") && i==0) {
+			else if(callerType.equals("Pawn") && i==0) { 
 				updatePiece(1);
 				System.out.println("In dialog creation");
 				JDialog options = new JDialog();
@@ -194,8 +180,9 @@ public class PieceActionListener implements ActionListener {
 			} //end if
 			else {
 				updatePiece(0);
-				checkForCheckMate();
+				checkForCheckMate((callerTeam ==1) ? 2:1);
 			}
+			
 			if(board[i][j].type.equals("Rook") || board[i][j].type.equals("King")) board[i][j].gameWindow.history.add(board[i][j].type);
 			
 
@@ -213,8 +200,8 @@ public class PieceActionListener implements ActionListener {
 //				if(checkKingSafety(board[i][j]) == false) return;
 //			}
 			if(!board[i][j].curPieces.isEmpty() && !board[i][j].curPieces.contains(board[i][j])) {
-				for(Piece setColor : board[i][j].curPieces) {
-					setColor.listener.unsetOverride();
+				for(Piece pieceToMoveTo : board[i][j].curPieces) {
+					pieceToMoveTo.listener.unsetOverride();
 				}
 				board[i][j].curPieces.clear();
 				
@@ -622,19 +609,21 @@ public class PieceActionListener implements ActionListener {
 				
 			}
 			if(!board[i][j].type.equals("King")) {
+				//pass in the oponents team piece that is checking the king
 				if(checkKingSafety(board[i][j]) == false) return;
+				
 			}
-	         
+	        
 		}
 	} 
 
 
-	private void checkForCheckMate() {
+	private HashSet<Piece> checkForCheckMate(int team) {
 		Piece king = null;
 		int row=0, col=0;
 		for(int i=0; i<8; i++) {
 			for(int j=0; j<8; j++) {
-				if(board[i][j].playerTeam != board[i][j].team && board[i][j].type.equals("King")) {
+				if(board[i][j].team == team && board[i][j].type.equals("King")) {
 					king = board[i][j];
 					row=i;
 					col=j;
@@ -648,6 +637,7 @@ public class PieceActionListener implements ActionListener {
 
 		legalMoves.add(king);
 		legalMoves_clone.add(king);
+		
 		if(col+1 < 8 && board[row][col+1].team != king.team) {
 			legalMoves.add(board[row][col+1]);
 			legalMoves_clone.add(board[row][col+1]);
@@ -689,21 +679,128 @@ public class PieceActionListener implements ActionListener {
 			legalMoves_clone.add(board[row-1][col+1]);
 
 		}
-		
+		Piece checkingPiece = null;
 		for(Piece piece : legalMoves_clone) {
-			if(legalMoves.contains(piece)) performChecks(piece, king.team, legalMoves);
+			if(piece.type.equals("King")) {
+				checkingPiece = performChecks(piece, king.team, legalMoves);
+			}
+			else if(legalMoves.contains(piece)) performChecks(piece, king.team, legalMoves);
 		}
-
-		if(legalMoves.size() == 0) {
-			//checkmate
-			king.gameWindow.endGame("win");
+		if(!legalMoves.contains(king)) {
+			System.out.println("Legal moves does not contain king so the king in check");
+			HashSet<Piece> checkingRoute = new HashSet<>();
+			HashSet<Piece> checkingRoute_clone = new HashSet<>();
+			checkingRoute.add(checkingPiece);
+			checkingRoute_clone.add(checkingPiece);
 			
+			if(checkingPiece.type.equals("Knight")) return checkingRoute;
+
+			int row_diff = checkingPiece.i-row;
+			int col_diff = checkingPiece.j-col;
+			int row_diff_abs = Math.abs(row_diff);
+			int col_diff_abs = Math.abs(col_diff);
+			if(row_diff_abs==col_diff_abs) { //this means the king is diagonal relative to the piece.
+				//checking piece to king.
+				if(col_diff < 0 && row_diff < 0 ) {
+					int startPointX = checkingPiece.i;
+					int startPointY = checkingPiece.j;
+					for(; startPointX < row && startPointY < col; startPointX++, startPointY++) {
+						checkingRoute.add(board[startPointX][startPointY]);
+						checkingRoute_clone.add(board[startPointX][startPointY]);
+					}
+				}
+				//king to checking piece
+				else if(col_diff > 0 && row_diff > 0){
+					int startPointX = row+1;
+					int startPointY = col+1;
+					for(; startPointX < 8 && startPointY < 8; startPointX++, startPointY++) {
+						checkingRoute.add(board[startPointX][startPointY]);
+						checkingRoute_clone.add(board[startPointX][startPointY]);
+					}
+				}
+				//checking piece to king
+				else if(col_diff < 0 && row_diff > 0) { 
+					int startPointX = checkingPiece.i;
+					int startPointY = checkingPiece.j;
+					for(; startPointX < row && startPointY < col; startPointX--, startPointY++) {
+						checkingRoute.add(board[startPointX][startPointY]);
+						checkingRoute_clone.add(board[startPointX][startPointY]);
+
+					}
+				}
+				//king to checking piece
+				else {
+					int startPointX = row-1;
+					int startPointY = col+1;
+					for(; startPointX > -1 && startPointY < 8; startPointX-- , startPointY++) {
+						checkingRoute.add(board[startPointX][startPointY]);
+						checkingRoute_clone.add(board[startPointX][startPointY]);
+
+					}
+				}
+			}
+			else if(col_diff==0) {
+				//checking piece to king. The checking piece is inclusive
+				if(row_diff < 0) {
+					int startPointX = checkingPiece.i;
+					int startPointY = col;
+					for(; startPointX < row ; startPointX++) {
+						checkingRoute.add(board[startPointX][startPointY]);
+						checkingRoute_clone.add(board[startPointX][startPointY]);
+
+					}
+				}
+				else {
+					//king to checking piece. King is exclusive
+					int startPointX = row+1;
+					int startPointY = col;
+					for(; startPointX < 8 ; startPointX++) {
+						checkingRoute.add(board[startPointX][startPointY]);
+						checkingRoute_clone.add(board[startPointX][startPointY]);
+
+					}
+				}
+			}
+			else if(row_diff==0) {
+				if(col_diff < 0) {
+					//checking piece to king. Checking piece is inclusive
+					int startPointX = row;
+					int startPointY = checkingPiece.j;
+					for(; startPointY < col; startPointY++) {
+						checkingRoute.add(board[startPointX][startPointY]);
+						checkingRoute_clone.add(board[startPointX][startPointY]);
+
+					}
+				}
+				else {
+					//king to checking piece. King is exclusive
+					int startPointX = row;
+					int startPointY = col+1; 
+					for(; startPointY < 8; startPointY++) {
+						checkingRoute.add(board[startPointX][startPointY]);
+						checkingRoute_clone.add(board[startPointX][startPointY]);
+
+					}
+				}
+			}
+			for(Piece piece : checkingRoute_clone) {
+				performChecks(piece, king.team, checkingRoute );
+			}
+			if(legalMoves.size() == 0 && checkingRoute_clone.size() == checkingRoute.size()) {
+				//checkmate
+				king.gameWindow.endGame("win");
+			}
+			else {
+				HashSet<Piece> tempSet = new HashSet<>();
+				for(Piece piece : checkingRoute_clone) {
+					if(!checkingRoute.contains(piece)) tempSet.add(piece);
+				}
+				return tempSet;
+			}
 		}
-//		else {
-//			//send the legal moves to the opponent
-//		}
+		return null;
 	}
-	private void performChecks(Piece piece, int kingTeam, HashSet<Piece> legalMoves) {
+	private Piece performChecks(Piece piece, int kingTeam, HashSet<Piece> legalMoves) {
 		int col = piece.j;
 		int row = piece.i;
 		Piece curPieceVert = null;
@@ -717,7 +814,8 @@ public class PieceActionListener implements ActionListener {
 		if(curPieceVert != null) {
 			if(curPieceVert.team != kingTeam && (curPieceVert.type.equals("Queen") || curPieceVert.type.equals("Rook"))) {
 				legalMoves.remove(piece);
-				return;
+				if(piece.type.equals("King")) return curPieceVert;
+				return null;
 			
 			}
 		}
@@ -731,7 +829,8 @@ public class PieceActionListener implements ActionListener {
 			if(board[i][col].team != kingTeam ) {
 				if(board[i][col].type.equals("Queen") || board[i][col].type.equals("Rook")) {
 					legalMoves.remove(piece);
-					return;
+					if(piece.type.equals("King")) return board[i][col];
+					return null;
 				}
 				break;
 			}
@@ -751,7 +850,8 @@ public class PieceActionListener implements ActionListener {
 		if(curPieceHorz != null) {
 			if(curPieceHorz.team != kingTeam && (curPieceHorz.type.equals("Queen") || curPieceHorz.type.equals("Rook"))) {
 				legalMoves.remove(piece);
-				return;
+				if(piece.type.equals("King")) return curPieceHorz;
+				return null;
 			
 			}
 		}
@@ -762,7 +862,8 @@ public class PieceActionListener implements ActionListener {
 			if(board[row][j].team != kingTeam ) {
 				if(board[row][j].type.equals("Queen") || board[row][j].type.equals("Rook")) {
 					legalMoves.remove(piece);
-					return;
+					if(piece.type.equals("King")) return board[row][j];
+					return null;
 				}
 				break;
 			}
@@ -779,7 +880,9 @@ public class PieceActionListener implements ActionListener {
 			else if(board[i][j].team != kingTeam) { 
 				if(board[i][j].type.equals("Queen") || board[i][j].type.equals("Bishop") ) {
 					legalMoves.remove(piece);
-					return;
+					if(piece.type.equals("King")) return board[i][j];
+
+					return null;
 				}
 				break;
 			}
@@ -793,7 +896,9 @@ public class PieceActionListener implements ActionListener {
 			else if(board[i][j].team != kingTeam ){
 				if(board[i][j].type.equals("Queen") || board[i][j].type.equals("Bishop") || board[i][j].type.equals("Pawn") ) {
 					legalMoves.remove(piece);
-					return;
+					if(piece.type.equals("King")) return board[i][j];
+
+					return null;
 				}
 				break;
 			}
@@ -807,7 +912,9 @@ public class PieceActionListener implements ActionListener {
 			else if(board[i][j].team != kingTeam ){
 				if(board[i][j].type.equals("Queen") || board[i][j].type.equals("Bishop")) {
 					legalMoves.remove(piece);
-					return;
+					if(piece.type.equals("King")) return board[i][j];
+
+					return null;
 				}
 				break;
 			}
@@ -820,7 +927,9 @@ public class PieceActionListener implements ActionListener {
 			else if(board[i][j].team != kingTeam ){
 				if(board[i][j].type.equals("Queen") || board[i][j].type.equals("Bishop") || board[i][j].type.equals("Pawn") ) {
 					legalMoves.remove(piece);
-					return;
+					if(piece.type.equals("King")) return board[i][j];
+
+					return null;
 				}
 				break;
 			}
@@ -834,13 +943,16 @@ public class PieceActionListener implements ActionListener {
 			try {
 				if(board[i][j].type.equals("Knight") && board[i][j].team != kingTeam) {
 					legalMoves.remove(piece);
-					return;
+					if(piece.type.equals("King")) return board[i][j];
+
+					return null;
 				}	
 			} catch(Exception e) {
 				continue;
 			}
 			
 		}
+		return null;
 		
 	}
 
@@ -848,6 +960,23 @@ public class PieceActionListener implements ActionListener {
 		//Pinning logic
 		//Returning false == can not move piece
 		//Returning true == can move piece
+		HashSet<Piece> checkingRoute = checkForCheckMate(piece.team);
+		
+		if(checkingRoute != null) {
+			System.out.println("In list of moveables, Checking route: " + checkingRoute.size());
+			listOfMoveableMoves = new HashSet<>(); //this set is only created when the king is in check
+			for(Piece tempPiece : piece.curPieces) {
+				if(checkingRoute.contains(tempPiece)) {
+					listOfMoveableMoves.add(tempPiece);
+				}
+				else {
+					board[tempPiece.i][tempPiece.j].listener.unsetOverride();
+				}
+			}
+			if(listOfMoveableMoves.size() > 0) return true;
+			else return false;
+		}
+		
 		int oppositeTeam = (piece.team == 1) ? 2 : 1;
 		int row = 0, col = 0;
 		for(int i=0; i<8; i++) {
@@ -863,7 +992,6 @@ public class PieceActionListener implements ActionListener {
 		int col_diff = piece.j-col;
 		int row_diff_abs = Math.abs(row_diff);
 		int col_diff_abs = Math.abs(col_diff);
-		
 		if(row_diff_abs==col_diff_abs) { //this means the king is diagonal relative to the piece.
 			//pieces that could kill the checking piece are queen bishop and pawn
 			return kingSafetyDiagonalCheck(piece, row, col, col_diff, row_diff, oppositeTeam);
