@@ -226,7 +226,7 @@ public class GameInfoPanel extends JPanel {
 	public void setBoard(Piece[][] board) {
 		this.board = board;
 	}
-	public void updateCurTurn(Piece piece) {
+	public void updateCurTurn() {
 		enpassanteList.clear();
 		if(currentTurn.getText().equals("White to Move")) {
 			currentTurn.setText("Black to Move");
