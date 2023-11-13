@@ -29,10 +29,11 @@ public class GameInfoPanel extends JPanel {
     private int blackremainingSeconds, whiteremainingSeconds, team;
     Timer blackTimer, whiteTimer;
     HashSet<String> history;
-    
+    HashSet<Piece> enpassanteList;
 	GameInfoPanel(int playerTeam, CardLayout cardlayout, JPanel cardLayoutPanel, CardLayout gameCardLayout, JPanel gameCardLayoutPanel, JPanel gameWindowPanel) {
 		this.team = playerTeam;
 		this.history = new HashSet<>();
+		this.enpassanteList = new HashSet<>();
 		setLayout(new GridLayout(4, 1, 0, 0));
 		setBackground(hexToColor("312E2B"));
 		blackremainingSeconds = 10*60;
@@ -225,7 +226,8 @@ public class GameInfoPanel extends JPanel {
 	public void setBoard(Piece[][] board) {
 		this.board = board;
 	}
-	public void updateCurTurn() {
+	public void updateCurTurn(Piece piece) {
+		enpassanteList.clear();
 		if(currentTurn.getText().equals("White to Move")) {
 			currentTurn.setText("Black to Move");
 		}

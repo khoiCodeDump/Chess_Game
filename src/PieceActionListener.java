@@ -178,15 +178,26 @@ public class PieceActionListener implements ActionListener {
 				
 				options.setVisible(true);
 			} //end if
-			else {
+			else if(callerType.equals("Pawn") && callerI == 6 && i == 4) {
+				//en passante 
+				
+				if( (j+1<8 && board[i][j+1].type.equals("Pawn") && board[i][j+1].team != this.team) || (j-1 > -1 && board[i][j-1].type.equals("Pawn") && board[i][j-1].team != this.team)) {
+					try {
+						board[i][j].out.writeObject(new Data("En Passante", i+1, j, callerI, callerJ, callerTeam, callerType, -1 ));
+						
+						board[i][j].out.flush();
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+				}
+				updatePiece(0);
+			}
+			else {				
 				updatePiece(0);
 				checkForCheckMate((callerTeam ==1) ? 2:1);
 			}
 			
 			if(board[i][j].type.equals("Rook") || board[i][j].type.equals("King")) board[i][j].gameWindow.history.add(board[i][j].type);
-			
-
-
 		}
 		else if(board[i][j].playerTeam != this.team) {
 			return;
@@ -598,6 +609,7 @@ public class PieceActionListener implements ActionListener {
 		        	board[i][j].curPieces.add(board[i-1][j]);
 				}
 				if(j+1 < 8 && board[i-1][j+1].team != 0 && board[i-1][j+1].team != this.team) {
+					
 					board[i-1][j+1].listener.setOverride(type, team, i, j);
 		        	board[i][j].curPieces.add(board[i-1][j+1]);
 				}
@@ -605,7 +617,14 @@ public class PieceActionListener implements ActionListener {
 					board[i-1][j-1].listener.setOverride(type, team, i, j);
 		        	board[i][j].curPieces.add(board[i-1][j-1]);
 				}
-					
+				if( j+1 < 8 && board[i-1][j+1].team == 0 &&  board[i-1][j-1].enPassante)		{
+					board[i-1][j+1].listener.setOverride(type, team, i, j);
+		        	board[i][j].curPieces.add(board[i-1][j+1]);
+				}
+				if(j-1 > -1 && board[i-1][j-1].team == 0 && board[i-1][j+1].enPassante)		{
+					board[i-1][j+1].listener.setOverride(type, team, i, j);
+		        	board[i][j].curPieces.add(board[i-1][j+1]);
+				}
 				
 			}
 			if(!board[i][j].type.equals("King")) {
@@ -679,6 +698,9 @@ public class PieceActionListener implements ActionListener {
 			legalMoves_clone.add(board[row-1][col+1]);
 
 		}
+		
+		int legalMovesCount = legalMoves.size();
+		
 		Piece checkingPiece = null;
 		for(Piece piece : legalMoves_clone) {
 			if(piece.type.equals("King")) {
@@ -686,6 +708,7 @@ public class PieceActionListener implements ActionListener {
 			}
 			else if(legalMoves.contains(piece)) performChecks(piece, king.team, legalMoves);
 		}
+		
 		if(!legalMoves.contains(king)) {
 			System.out.println("Legal moves does not contain king so the king in check");
 			HashSet<Piece> checkingRoute = new HashSet<>();
@@ -796,6 +819,15 @@ public class PieceActionListener implements ActionListener {
 					if(!checkingRoute.contains(piece)) tempSet.add(piece);
 				}
 				return tempSet;
+			}
+		} //end if for when king is in check. If king is not in check, check for stalemate
+		else if(legalMovesCount > 1){ 
+			//check for stalemate
+			//before performChecks(), the legalMoves set only contains a king.
+			//If the code does go into this logic part, then the king is still in the set.
+			if(legalMoves.size() == 1 && legalMoves.contains(king)) {
+				//stalemate 
+				king.gameWindow.endGame("draw");
 			}
 		}
 		return null;

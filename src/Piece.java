@@ -33,6 +33,7 @@ public class Piece extends JButton{
 	ObjectInputStream in;
 	HashSet<Piece> curPieces;
 	JPanel gamePanel;
+	boolean enPassante;
 	Piece(String type, int team){
 		this.type = type;
 		this.team = team;
@@ -63,6 +64,7 @@ public class Piece extends JButton{
 		 this.j = j;
 		 
 	}
+	
 	 public BufferedImage transcodeSVGToBufferedImage(File file, int width, int height) {
 	        // Create a PNG transcoder.
 	        Transcoder t = new PNGTranscoder();

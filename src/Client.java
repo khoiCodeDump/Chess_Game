@@ -11,6 +11,7 @@ import java.net.UnknownHostException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 
 public class Client {
@@ -66,7 +67,7 @@ public class Client {
         gameWindow = new JFrame();
         gameWindow.setResizable(false);
    	 	gameWindow.setBounds(100, 100, 1260, 839);
-   	 	gameWindow.setDefaultCloseOperation(gameWindow.DISPOSE_ON_CLOSE);
+   	 	gameWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
    	    gameWindowPanel = new JPanel();
    	    gameWindowPanel.setLayout(null);
    	    gameWindow.setContentPane(gameWindowPanel);
@@ -112,6 +113,11 @@ public class Client {
              //read the server response message
 //             ois = new ObjectInputStream(socket.getInputStream());
              Data message = (Data) ois.readObject();
+             if(message.command.equals("En Passante")) {
+            	 int[] reflectedPiece = moveReflection(message.i, message.j);
+            	 game.pieces[reflectedPiece[0]][reflectedPiece[1]].enPassante = true;
+            	 game.pieces[reflectedPiece[0]][reflectedPiece[1]].gameWindow.enpasseList.add(game.pieces[reflectedPiece[0]][reflectedPiece[1]]);
+             }
              if(message.command.equals("Pawn_Promo")) {
             	 int[] dest = moveReflection(message.i, message.j);
             	 game.pieces[dest[0]][dest[1]].updatePiece(message.callerType);
