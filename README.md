@@ -1,5 +1,5 @@
 # Chess_Game
-Multiplayer chess game. The chess game follows peer to peer architecture and is a live game .
+Local Multiplayer chess game. The chess game follows peer to peer architecture and is a live game .
 
 ## Set up & Installation
 
@@ -17,10 +17,10 @@ Install the required maven dependency:
 ```
 ## Running the application
 You can either run this in the command line or eclipse but I recommend running it in eclipse. From eclipse, you can get the command to run it in the command line in Run Configurations.
-Note, the server has to be run first in order for you to run the client. Once the server is running, you can connect to the server with any machine in your local network. 
-The app is not yet world wide and would not work if someone is trying to connect to the server outside of your network.
-
-
+Follow the steps below to run the app:
+1. Open the Client.java and Server.java. You can configure which port to send to in Client.java and to receive in Server.java.
+2. First press play button with the Server.java file in focus. Playing this will make you the server.
+3. Then press play button with the Client.java file in focus. 
 
 https://github.com/khoiCodeDump/Chess_Game/assets/46497248/6c6a0acd-9887-4dd3-8527-25b8bd0af84e
 
