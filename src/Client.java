@@ -16,6 +16,10 @@ import javax.swing.WindowConstants;
 
 public class Client {
 	private static class Checkboard extends JPanel{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		static final int CHECKER_WIDTH= 120;
 		static final int CHECKER_HEIGHT = 100;
 		Checkboard(){
@@ -55,12 +59,15 @@ public class Client {
     static JFrame gameWindow;
     static JPanel gameWindowPanel, lobbyWindow, cardLayoutPanel, gameCardLayoutPanel;
     static CardLayout cardlayout, gameCardLayout;
+    static ObjectOutputStream oos;
+    static ObjectInputStream ois;
+    static Chess_Bot chessBot;
     public static void main(String[] args) throws UnknownHostException, IOException, ClassNotFoundException, InterruptedException{
         //get the localhost IP address, if server is running on some other IP, you need to use that
         InetAddress host = InetAddress.getLocalHost();
         Socket socket = new Socket(host.getHostName(), 9876);
-        ObjectOutputStream oos =  new ObjectOutputStream(socket.getOutputStream());
-        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+        oos =  new ObjectOutputStream(socket.getOutputStream());
+        ois = new ObjectInputStream(socket.getInputStream());
         
         //Waiting for PlayerThread to initialize Game.java
         //Game.java writeInt() to the Client
@@ -111,38 +118,16 @@ public class Client {
  		});
         while(true) {
              //read the server response message
-//             ois = new ObjectInputStream(socket.getInputStream());
              Data message = (Data) ois.readObject();
-             if(message.command.equals("En Passante")) {
-            	 int[] reflectedPiece = moveReflection(message.i, message.j);
-            	 game.pieces[reflectedPiece[0]][reflectedPiece[1]].enPassante = true;
-            	 game.pieces[reflectedPiece[0]][reflectedPiece[1]].gameWindow.enpasseList.add(game.pieces[reflectedPiece[0]][reflectedPiece[1]]);
-             }
-             if(message.command.equals("Pawn_Promo")) {
-            	 int[] dest = moveReflection(message.i, message.j);
-            	 game.pieces[dest[0]][dest[1]].updatePiece(message.callerType);
-            	 if(gameInfoWindow.whiteTimer.isRunning()) gameInfoWindow.startTimer(2);
-            	 else gameInfoWindow.startTimer(1);
-            	 gameInfoWindow.updateCurTurn();
-             }
-             else if(message.command.equals("Castle_update")) {
-            	 int[] reflectedRook = moveReflection(message.i, message.j);
-            	 int[] reflectedEmpty = moveReflection(message.callerI, message.callerJ);
-            	 game.pieces[reflectedRook[0]][reflectedRook[1]].castleUpdatePiece(message.callerTeam);
-            	 game.pieces[reflectedEmpty[0]][reflectedEmpty[1]].updatePiece("Empty", 0);
-//            	 if(gameInfoWindow.whiteTimer.isRunning()) gameInfoWindow.startTimer(2);
-//            	 else gameInfoWindow.startTimer(1);
-//        		 gameInfoWindow.updateCurTurn();
-
-             }
-             else if(message.command.equals("Draw_request")) {
+             
+             if(message.command.equals("Draw_request")) {
             	 //0 no
             	 //1 yes
             	 //2 cancel
             	 if(message.team ==2 || message.team == 0) {
             		 for(int i=0; i<8; i++) {
                 		 for(int j=0; j<8; j++) {
-                			 game.pieces[i][j].setEnabled(true);
+                			 Board.board[i][j].setEnabled(true);
                 		 }
                 	 }
             	 }
@@ -154,7 +139,7 @@ public class Client {
             	 int choice = JOptionPane.showConfirmDialog(gameCardLayoutPanel, "Draw?", "Draw request", JOptionPane.YES_NO_OPTION);
             	 for(int i=0; i<8; i++) {
             		 for(int j=0; j<8; j++) {
-            			 game.pieces[i][j].setEnabled(false);
+            			 Board.board[i][j].setEnabled(false);
             		 }
             	 }
             	 
@@ -169,79 +154,100 @@ public class Client {
 
             		 for(int i=0; i<8; i++) {
                 		 for(int j=0; j<8; j++) {
-                			 game.pieces[i][j].setEnabled(true);
+                			 Board.board[i][j].setEnabled(true);
                 		 }
                 	 }
             	 }
              }
-             else if(message.command.equals("Move")) {
-            	 
-            	 int[] caller_dest = moveReflection(message.callerI, message.callerJ);
-            	 int[] dest = moveReflection(message.i, message.j );
-            	 game.pieces[caller_dest[0]][caller_dest[1]].updatePiece("Empty", 0);
-         		
-            	 game.pieces[dest[0]][dest[1]].updatePiece(message.callerType, message.callerTeam);
-            	 game.turn[0] = team;
-            	 
-            	 if(message.pawnPromo == 0) {
-            		 if(gameInfoWindow.whiteTimer.isRunning()) gameInfoWindow.startTimer(2);
-                	 else gameInfoWindow.startTimer(1);
-            		 gameInfoWindow.updateCurTurn();
+             else if(message.command.equals("Update") || message.command.equals("En Passant")) {
+            	 if(message.pawnPromo)
+            	 {
+            		 int[] dest = moveReflection(message.i, message.j );  
+            		 Board.board[dest[0]][dest[1]].ClientUpdatePiece(new Piece(message.type, dest[0], dest[1], message.team));
             	 }
-            	
+            	 else if(message.isEmpty)
+            	 {
+            		 int[] dest = moveReflection(message.i, message.j );  
+            		 Board.board[dest[0]][dest[1]].ClientUpdatePiece(Board.emptyPiece);
+            	 }
+            	 else
+            	 {
+            		 int[] caller_dest = moveReflection(message.callerI, message.callerJ);
+                	 int[] dest = moveReflection(message.i, message.j );  
+                	 PieceUI callerPiece = Board.board[caller_dest[0]][caller_dest[1]];
+                	 if(message.enPassant) callerPiece.curPiece.enPassant = true;
+                	 Board.board[dest[0]][dest[1]].ClientUpdatePiece(callerPiece.curPiece);
+            	 }
+            	 
              }
              else if(message.command.equals("End")) {
             	//0 Draw
      			//1 Win
      			//2 Lose
         		gameInfoWindow.endGame(message.team);
+        		socket.close();
              }
              else if(message.command.equals("Start")) {
-            	 ((LobbyWindow) lobbyWindow).resetTimer();
-            	 team = message.team;
-            	 if(team == 1)gameWindow.setTitle("Team White");
-                 else gameWindow.setTitle("Team Black");
-
-            	 gameInfoWindow = new GameInfoPanel(team, cardlayout, cardLayoutPanel, gameCardLayout, gameCardLayoutPanel, gameWindowPanel);
-            	 gameInfoWindow.setLocation(960, 0);
-            	 gameInfoWindow.setSize(300, 800);
-            	 cardLayoutPanel.add(gameInfoWindow, 1);
-            	 
-            	 game = new Board(team, ois, oos, gameInfoWindow);
-            	 game.setLocation(0, 0);
-         		 game.setSize(960, 800);
-            	 gameCardLayoutPanel.add(game, 1);
-
-            	 cardlayout.next(cardLayoutPanel);
-            	 gameCardLayout.next(gameCardLayoutPanel);
-            	 gameInfoWindow.startTimer(1);
-                 System.out.println("Created board");
-                 
+            	 CreateBoard(message.team, null);
              }
-            
+             else if(message.command.equals("Update_Turn")) {
+            	 System.out.println("================================");
+            	 PieceManager.checkForCheckMate();
+            	 PieceManager.turn = (PieceManager.turn == 1) ? 2 : 1;
+             	if(message.team == 1) {
+         			Client.gameInfoWindow.whiteTimer.stop();
+         			Client.gameInfoWindow.blackTimer.start();
+         			Client.gameInfoWindow.updateCurTurn();
+         		}
+         		else {
+         			Client.gameInfoWindow.whiteTimer.start();
+         			Client.gameInfoWindow.blackTimer.stop();
+         			Client.gameInfoWindow.updateCurTurn();
+         		}
+             }
         }
        
         
     }
+    public static void CreateBoard(int t, Chess_Bot bot)
+    {
+    	if(chessBot != null) chessBot = bot;
+    	((LobbyWindow) lobbyWindow).resetTimer();
+	   	 team = t;
+	   	 if(team == 1)gameWindow.setTitle("Team White");
+	        else gameWindow.setTitle("Team Black");
+	
+	   	 gameInfoWindow = new GameInfoPanel(team, cardlayout, cardLayoutPanel, gameCardLayout, gameCardLayoutPanel, gameWindowPanel);
+	   	 gameInfoWindow.setLocation(960, 0);
+	   	 gameInfoWindow.setSize(300, 800);
+	   	 cardLayoutPanel.add(gameInfoWindow, 1);
+	   	 
+	   	 game = new Board(team, gameInfoWindow);
+	   	 game.setLocation(0, 0);
+	   	 game.setSize(960, 800);
+	   	 gameCardLayoutPanel.add(game, 1);
+	
+	   	 cardlayout.next(cardLayoutPanel);
+	   	 gameCardLayout.next(gameCardLayoutPanel);
+	   	 gameInfoWindow.startTimer(1);
+    }
     private static int[] moveReflection(int i, int j) {
 
-	   	double min_distance = Double.MAX_VALUE;
-	   	 
 	   	int[] closest_center_point = {0, 0};
 	   	int[][] center_points = {{3,3}, {3,4}, {4,3}, {4,4}};
-	   	 
+	   	int minNumSteps = 10;
 	   	 for(int[] arr : center_points ) {
-	   		 double distance = Math.hypot(i-arr[0], j-arr[1]);
-	   		 if(min_distance > distance) {
+	   		 int steps = Math.abs(arr[0]-i) + Math.abs(arr[1]-j);
+
+	   		 if(minNumSteps > steps) {
 	   			 closest_center_point = arr;
-	   			 min_distance = distance;
+	   			minNumSteps = steps;
 	   		 }  		 
 
 	   	 }
 	   	 int[] movement = {Math.abs(closest_center_point[0]-i), Math.abs(closest_center_point[1]-j)};
 	
 	   	 int[] dest = {0,0};
-	
 	   	 if(closest_center_point == center_points[0]) {
 	   		 
 	   		 dest[0] = 4+movement[0];

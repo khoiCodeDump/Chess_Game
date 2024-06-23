@@ -14,22 +14,23 @@ import javax.swing.JButton;
 
 public class LobbyWindow extends JPanel {
 
-	private static final long serialVersionUID = 1L;
+//	private static final long serialVersionUID = 1L;
 	int time = 0;
 	Timer queueTimer;
 	JLabel timeLabel ;
-	JButton queueUp;
+	JButton queueUp, vsBot;
 	public LobbyWindow(ObjectInputStream in, ObjectOutputStream out) {
 		setBounds(100, 100, 450, 300);
 		setBorder(new EmptyBorder(5, 5, 5, 5));
 		setBackground(hexToColor("312E2B"));
-       
 		
 		queueUp = new JButton("Play");
 		queueUp.setBackground(hexToColor("#779952"));
 		queueUp.setForeground(Color.white);
 		queueUp.setFocusable(false);
 		queueUp.setSize(100, 80);
+		
+		
 		timeLabel = new JLabel();
 		timeLabel.setForeground(Color.WHITE);
 		queueTimer = new Timer(1000, new ActionListener() {
@@ -68,9 +69,25 @@ public class LobbyWindow extends JPanel {
 			
 		});
 		
+		vsBot = new JButton("Play vs Bot");
+		vsBot.setBackground(hexToColor("#779952"));
+		vsBot.setForeground(Color.white);
+		vsBot.setFocusable(false);
+		vsBot.setSize(100, 80);
+		vsBot.addActionListener(new ActionListener() 
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{				
+				Client.CreateBoard(0, new Chess_Bot(Client.game, (Client.team == 1) ? 0 : 1));
+				
+			}
 			
+		});
+		
 		add(timeLabel, BorderLayout.SOUTH);
 		add(queueUp);
+		add(vsBot);
 	}
 	public void resetTimer() {
 		queueTimer.stop();

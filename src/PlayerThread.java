@@ -27,32 +27,11 @@ public class PlayerThread extends Thread {
 					System.out.println("PlayerThread " + this.getId() + " " + data.command);
 					if(data.command.equals("Queue")) {
 						lobby.queue(this);
-//						while(true) {
-//							if(gameQueue.isEmpty()) gameQueue.add(this);
-//							else if(gameQueue.peek() != this){
-//								PlayerThread secondPlayer = gameQueue.poll();
-//								game = new Game(this, secondPlayer);
-//								gameQueue.remove(this);
-//
-//								break;
-//							}
-//						}
 						
 					}
-					else if(data.command.equals("Move")) {
-//						System.out.println("In move" + " PlayerThread " + this.getId() );
-//						System.out.println(game);
-//						System.out.println(data.callerTeam);
-//						if(data.callerTeam == game.currentTurn) {
-//							System.out.println("PlayerThread" + this.getId() + "updating the other player board");
-							if(game.player1.getId() == this.getId()) game.updateGameState(this, game.player2, data);
-							else game.updateGameState(this, game.player1, data);							
-//						}
-						
-					}
-					else if(data.command.equals("Pawn_Promo")) {
+					else if(data.command.equals("Update") || data.command.equals("Update_Turn") || data.command.equals("En Passant")) {
 						if(game.player1.getId() == this.getId()) game.updateGameState(this, game.player2, data);
-						else game.updateGameState(this, game.player1, data);	
+						else game.updateGameState(this, game.player1, data);													
 					}
 					else if(data.command.equals("End")) {
 						game.endGame(this, data);

@@ -6,14 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Stack;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
@@ -21,19 +18,24 @@ import javax.swing.Timer;
 import javax.swing.border.Border;
 
 public class GameInfoPanel extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	JLabel blackTimerLabel;
 	JLabel whiteTimerLabel; 
 	JLabel currentTurn;
-	Piece[][] board;
-	JButton draw, playAgain, forfeit;
+	PieceUI[][] board;
+	JButton draw;
+	JButton playAgain;
+	JButton forfeit;
     private int blackremainingSeconds, whiteremainingSeconds, team;
-    Timer blackTimer, whiteTimer;
-    HashSet<String> history;
-    HashSet<Piece> enpassanteList;
+    Timer blackTimer;
+	Timer whiteTimer;
+    
 	GameInfoPanel(int playerTeam, CardLayout cardlayout, JPanel cardLayoutPanel, CardLayout gameCardLayout, JPanel gameCardLayoutPanel, JPanel gameWindowPanel) {
 		this.team = playerTeam;
-		this.history = new HashSet<>();
-		this.enpassanteList = new HashSet<>();
+		
 		setLayout(new GridLayout(4, 1, 0, 0));
 		setBackground(hexToColor("312E2B"));
 		blackremainingSeconds = 10*60;
@@ -127,7 +129,7 @@ public class GameInfoPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				try {
-					board[0][0].out.writeObject(new Data("Draw"));
+					Client.oos.writeObject(new Data("Draw", playerTeam));
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -210,7 +212,7 @@ public class GameInfoPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					//2 cancel
-					board[0][0].out.writeObject(new Data("Draw_request",2));
+					Client.oos.writeObject(new Data("Draw_request",2));
 					panel.setEnabled(false);
 					panel.setVisible(false);
 				} catch (IOException e1) {
@@ -223,11 +225,15 @@ public class GameInfoPanel extends JPanel {
 	    
 	    return panel;
 	}
-	public void setBoard(Piece[][] board) {
+	public void setBoard(PieceUI[][] board) {
 		this.board = board;
 	}
 	public void updateCurTurn() {
-		enpassanteList.clear();
+		for(Piece piece : PieceManager.enpassantList)
+		{
+			piece.enPassant = false;
+		}
+		PieceManager.enpassantList.clear();
 		if(currentTurn.getText().equals("White to Move")) {
 			currentTurn.setText("Black to Move");
 		}
@@ -237,18 +243,19 @@ public class GameInfoPanel extends JPanel {
 	}
 	protected String checkWinCon() {
 		HashSet<String> opponent_pieces = new HashSet<>();
-		if(opponent_pieces.size() == 1) {
-			return "draw";
-		}
-		HashSet<String> required_piece_types_to_draw = new HashSet<>();
-		for(int i=0; i<8; i++) {
-			for(int j=0; j<8;j++) {
-				opponent_pieces.add(this.board[i][j].type);
-			}
-		}
 		
+		HashSet<String> required_piece_types_to_draw = new HashSet<>();
 		required_piece_types_to_draw.add("Bishop");
 		required_piece_types_to_draw.add("Knight");
+		
+		for(int i=0; i<8; i++) {
+			for(int j=0; j<8;j++) {
+				if(board[i][j].curPiece != null)
+				{
+					opponent_pieces.add(board[i][j].curPiece.type);
+				}
+			}
+		}
 		
 		for(String opp_piece: opponent_pieces) {
 			if(required_piece_types_to_draw.contains(opp_piece)) {
@@ -275,16 +282,16 @@ public class GameInfoPanel extends JPanel {
 			//1 Win
 			//2 Lose
 			if(endGameStatus.equals("draw")) {
-				board[0][0].out.writeObject(new Data("End", 0));
+				Client.oos.writeObject(new Data("End", 0));
 				currentTurn.setText("Draw");
 			}
 			else if(endGameStatus.equals("win")) {
-				board[0][0].out.writeObject(new Data("End", 2));
+				Client.oos.writeObject(new Data("End", 2));
 				currentTurn.setText("Victory");
 			}
 			
 			else {
-				board[0][0].out.writeObject(new Data("End", 1));
+				Client.oos.writeObject(new Data("End", 1));
 				currentTurn.setText("Defeat");
 			}
 		} catch (IOException e) {
