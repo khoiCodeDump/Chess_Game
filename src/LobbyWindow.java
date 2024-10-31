@@ -24,7 +24,7 @@ public class LobbyWindow extends JPanel {
 		setBorder(new EmptyBorder(5, 5, 5, 5));
 		setBackground(hexToColor("312E2B"));
 		
-		queueUp = new JButton("Play");
+		queueUp = new JButton("Queue");
 		queueUp.setBackground(hexToColor("#779952"));
 		queueUp.setForeground(Color.white);
 		queueUp.setFocusable(false);
@@ -50,7 +50,7 @@ public class LobbyWindow extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					if(queueUp.getText().equals("Play")) {
+					if(queueUp.getText().equals("Queue")) {
 						out.writeObject(new Data("Queue", -1));
 						out.flush();
 						queueUp.setText("Cancel");
@@ -59,7 +59,7 @@ public class LobbyWindow extends JPanel {
 					else {
 						out.writeObject(new Data("Cancel", -1));
 						out.flush();
-						queueUp.setText("Play");
+						queueUp.setText("Queue");
 						resetTimer();
 					}
 				} catch (IOException e1) {
@@ -69,7 +69,7 @@ public class LobbyWindow extends JPanel {
 			
 		});
 		
-		vsBot = new JButton("Play vs Bot");
+		vsBot = new JButton("Play vs Bot as White");
 		vsBot.setBackground(hexToColor("#779952"));
 		vsBot.setForeground(Color.white);
 		vsBot.setFocusable(false);
@@ -79,7 +79,7 @@ public class LobbyWindow extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{				
-				Client.CreateBoard(0, new Chess_Bot(Client.game, (Client.team == 1) ? 0 : 1));
+				Client.CreateBoard(1, new Chess_Bot(2) );
 				
 			}
 			

@@ -211,7 +211,6 @@ public class Client {
     }
     public static void CreateBoard(int t, Chess_Bot bot)
     {
-    	if(chessBot != null) chessBot = bot;
     	((LobbyWindow) lobbyWindow).resetTimer();
 	   	 team = t;
 	   	 if(team == 1)gameWindow.setTitle("Team White");
@@ -227,6 +226,12 @@ public class Client {
 	   	 game.setSize(960, 800);
 	   	 gameCardLayoutPanel.add(game, 1);
 	
+    	if(bot != null)
+    	{
+    		chessBot = bot;
+    		bot.SetBoard(game);
+    	}
+	   	 
 	   	 cardlayout.next(cardLayoutPanel);
 	   	 gameCardLayout.next(gameCardLayoutPanel);
 	   	 gameInfoWindow.startTimer(1);

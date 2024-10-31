@@ -136,7 +136,7 @@ public class PieceUI extends JButton{
 		}
 		else if(piece.team == 2) setIcon( new ImageIcon(generateChessPieceImage(piece.type, Color.BLACK)));
 		else setIcon(null);
-
+    	
     	if(Client.chessBot != null) Client.chessBot.CalculateMove();
     }
     public void ClientUpdatePiece(Piece piece) {
