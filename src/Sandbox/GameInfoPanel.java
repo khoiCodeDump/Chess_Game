@@ -18,6 +18,10 @@ import javax.swing.border.Border;
 
 public class GameInfoPanel extends JPanel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	JLabel blackTimerLabel;
 	JLabel whiteTimerLabel; 
 	JLabel currentTurn;
