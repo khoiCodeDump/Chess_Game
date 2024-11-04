@@ -191,19 +191,18 @@ public class Client {
             	 CreateBoard(message.team, null);
              }
              else if(message.command.equals("Update_Turn")) {
-            	 System.out.println("================================");
-            	 PieceManager.checkForCheckMate();
+            	 PieceManager.CheckKingSafety(Board.King, false);
             	 PieceManager.turn = (PieceManager.turn == 1) ? 2 : 1;
              	if(message.team == 1) {
          			Client.gameInfoWindow.whiteTimer.stop();
          			Client.gameInfoWindow.blackTimer.start();
-         			Client.gameInfoWindow.updateCurTurn();
          		}
          		else {
          			Client.gameInfoWindow.whiteTimer.start();
          			Client.gameInfoWindow.blackTimer.stop();
-         			Client.gameInfoWindow.updateCurTurn();
+         			
          		}
+             	Client.gameInfoWindow.updateCurTurn();
              }
         }
        
@@ -212,24 +211,24 @@ public class Client {
     public static void CreateBoard(int t, Chess_Bot bot)
     {
     	((LobbyWindow) lobbyWindow).resetTimer();
-	   	 team = t;
-	   	 if(team == 1)gameWindow.setTitle("Team White");
-	        else gameWindow.setTitle("Team Black");
-	
-	   	 gameInfoWindow = new GameInfoPanel(team, cardlayout, cardLayoutPanel, gameCardLayout, gameCardLayoutPanel, gameWindowPanel);
-	   	 gameInfoWindow.setLocation(960, 0);
-	   	 gameInfoWindow.setSize(300, 800);
-	   	 cardLayoutPanel.add(gameInfoWindow, 1);
-	   	 
-	   	 game = new Board(team, gameInfoWindow);
-	   	 game.setLocation(0, 0);
-	   	 game.setSize(960, 800);
-	   	 gameCardLayoutPanel.add(game, 1);
+		team = t;
+		if(team == 1)gameWindow.setTitle("Team White");
+		else gameWindow.setTitle("Team Black");
+
+		gameInfoWindow = new GameInfoPanel(team, cardlayout, cardLayoutPanel, gameCardLayout, gameCardLayoutPanel, gameWindowPanel);
+		gameInfoWindow.setLocation(960, 0);
+		gameInfoWindow.setSize(300, 800);
+		cardLayoutPanel.add(gameInfoWindow, 1);
+		
+		game = new Board(team, gameInfoWindow);
+		game.setLocation(0, 0);
+		game.setSize(960, 800);
+		gameCardLayoutPanel.add(game, 1);
 	
     	if(bot != null)
     	{
     		chessBot = bot;
-    		bot.SetBoard(game);
+//    		bot.SetBoard(game);
     	}
 	   	 
 	   	 cardlayout.next(cardLayoutPanel);

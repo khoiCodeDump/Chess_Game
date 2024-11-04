@@ -1,4 +1,3 @@
-
 public class Piece{
 	
 	int i, j;
@@ -6,6 +5,9 @@ public class Piece{
 	int team;
 	boolean isEmpty;
 	boolean enPassant;
+	public int originalI;
+	public int originalJ;
+	public boolean hasMoved;
 	public Piece() {
 		isEmpty = true;
 		team = 0;
@@ -22,3 +24,4 @@ public class Piece{
 	
 	
 }
+

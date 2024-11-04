@@ -1,3 +1,4 @@
+package Sandbox;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -106,28 +107,6 @@ public class PieceUI extends JButton{
     	PieceManager.board[i][j] = piece;    
 		
     	curPiece = piece;
-    	try {
-    		if(isEmpty)
-    		{
-    			Client.oos.writeObject(new Data("Update", i, j));
-    		}
-    		else if(pawnPromo)
-    		{
-    			Client.oos.writeObject(new Data("Update", i, j, piece.type));
-    		}
-    		else if(curPiece.enPassant)
-    		{
-    			Client.oos.writeObject(new Data("En Passant", i, j, piece.i, piece.j));
-    		}
-    		else 
-    		{
-    			Client.oos.writeObject(new Data("Update", i, j, piece.i, piece.j));
-    		}
-			Client.oos.flush();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
     	piece.i = i;
     	piece.j = j;
     	if(piece.team == 1) {

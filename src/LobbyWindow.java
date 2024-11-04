@@ -80,20 +80,20 @@ public class LobbyWindow extends JPanel {
 			public void actionPerformed(ActionEvent e) 
 			{				
 				Client.CreateBoard(1, new Chess_Bot(2) );
-				
+				Chess_Bot.SetBoard(Board.pieces);
 			}
 			
 		});
 		
 		add(timeLabel, BorderLayout.SOUTH);
-		add(queueUp);
+//		add(queueUp);
 		add(vsBot);
 	}
 	public void resetTimer() {
 		queueTimer.stop();
 		time = 0;
 		timeLabel.setText("");
-		queueUp.setText("Play");
+		queueUp.setText("Queue");
 	}
 	public Color hexToColor(String hex) {
         // Remove the "#" symbol if present

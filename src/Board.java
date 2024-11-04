@@ -10,12 +10,13 @@ public class Board extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	Piece[][] pieces;
+	static Piece[][] pieces;
 	static PieceUI[][] board;
 	GameInfoPanel gameInfo;
 	static int playerTeam;
 	JPanel gamePanel;
 	static Piece emptyPiece;
+	static Piece King;
 	public Board(int playerTeam, GameInfoPanel gameInfoWindow) {
 		Board.playerTeam = playerTeam;
 		setLayout(new BorderLayout(0, 0));
@@ -109,13 +110,13 @@ public class Board extends JPanel {
 					curPiece = new Piece("King", i, 4, playerTeam);
 					pieces[i][4] = curPiece;
 					board[i][4] = new PieceUI(curPiece, i, 4);
-					PieceManager.King = curPiece;
+					King = curPiece;
 				}
 				else {
 					curPiece = new Piece("King", i, 3, playerTeam);
 					pieces[i][3] = curPiece;
 					board[i][3] = new PieceUI(curPiece, i, 3);
-					PieceManager.King = curPiece;
+					King = curPiece;
 					
 					curPiece = new Piece("Queen", i, 4, playerTeam);
 					pieces[i][4] = curPiece;

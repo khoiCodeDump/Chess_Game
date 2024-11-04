@@ -1,3 +1,4 @@
+
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -47,15 +48,9 @@ public class GameInfoPanel extends JPanel {
 	        	blackremainingSeconds--;
 	            updateDisplay(blackremainingSeconds, blackTimerLabel);
 	            if (blackremainingSeconds <= 0) {
-	            	String status = checkWinCon();
-	            	if(status.equals("draw")){
-	            		blackTimerLabel.setText("Draw");
-	            		whiteTimerLabel.setText("Draw");
-	            	}
-	            	else {
-	            		blackTimerLabel.setText("Lose");
-	            		whiteTimerLabel.setText("Win");
-	            	}
+	            	String status = checkWinCon(2);
+	            	blackTimerLabel.setText("");
+            		whiteTimerLabel.setText("");
 	            	endGame(status);
 	            }
 	        }
@@ -68,15 +63,9 @@ public class GameInfoPanel extends JPanel {
 	        	whiteremainingSeconds--;
 	            updateDisplay(whiteremainingSeconds, whiteTimerLabel);
 	            if (whiteremainingSeconds <= 0) {
-	            	String status = checkWinCon();
-	            	if(status.equals("draw")){
-	            		blackTimerLabel.setText("Draw");
-	            		whiteTimerLabel.setText("Draw");
-	            	}
-	            	else {
-	            		blackTimerLabel.setText("Win");
-	            		whiteTimerLabel.setText("Lose");
-	            	}
+	            	String status = checkWinCon(1);
+	            	blackTimerLabel.setText("");
+            		whiteTimerLabel.setText("");
 	            	endGame(status);
 	            }
 	        }
@@ -241,35 +230,62 @@ public class GameInfoPanel extends JPanel {
 			currentTurn.setText("White to Move");
 		}
 	}
-	protected String checkWinCon() {
-		HashSet<String> opponent_pieces = new HashSet<>();
+	protected String checkWinCon(int timerTeam) {
+		// Get the pieces of the player who still has time (opponent of timerTeam)
+		HashSet<String> remainingPlayerPieces = new HashSet<>();
+		int winningTeam = (timerTeam == 1) ? 2 : 1;
 		
-		HashSet<String> required_piece_types_to_draw = new HashSet<>();
-		required_piece_types_to_draw.add("Bishop");
-		required_piece_types_to_draw.add("Knight");
-		
-		for(int i=0; i<8; i++) {
-			for(int j=0; j<8;j++) {
-				if(board[i][j].curPiece != null)
-				{
-					opponent_pieces.add(board[i][j].curPiece.type);
+		// Count pieces for the player who still has time
+		for(int i = 0; i < 8; i++) {
+			for(int j = 0; j < 8; j++) {
+				if(board[i][j].curPiece != null && !board[i][j].curPiece.isEmpty) {
+					if(board[i][j].curPiece.team == winningTeam) {
+						remainingPlayerPieces.add(board[i][j].curPiece.type);
+					}
 				}
 			}
 		}
+
+		// Check if the player with remaining time has sufficient material to win
+		boolean insufficientMaterial = isInsufficientMaterial(remainingPlayerPieces);
 		
-		for(String opp_piece: opponent_pieces) {
-			if(required_piece_types_to_draw.contains(opp_piece)) {
-				required_piece_types_to_draw.remove(opp_piece);
-			}
+		if(insufficientMaterial) {
+			return "draw"; // Not enough material to win
 		}
-		if(required_piece_types_to_draw.size() == 1) {
-			if( opponent_pieces.size() >= 3) return "lose";
-			return "draw";
-			
-		}
-		return "lose";
 		
+		// Return win/lose based on which team ran out of time
+		return (timerTeam == team) ? "lose" : "win";
 	}
+
+	private boolean isInsufficientMaterial(HashSet<String> pieces) {
+		// Remove pawns and major pieces as they can always deliver checkmate
+		if(pieces.contains("Pawn") || pieces.contains("Queen") || pieces.contains("Rook")) {
+			return false;
+		}
+		
+		// Only king left
+		if(pieces.size() == 1) {
+			return true;
+		}
+		
+		// King + single minor piece
+		if(pieces.size() == 2 && 
+			(pieces.contains("Bishop") || pieces.contains("Knight"))) {
+			return true;
+		}
+		
+		// King + two knights is insufficient material
+		if(pieces.size() == 2 && pieces.contains("Knight")) {
+			int knightCount = 0;
+			for(String piece : pieces) {
+				if(piece.equals("Knight")) knightCount++;
+			}
+			if(knightCount == 2) return true;
+		}
+		
+		return false;
+	}
+
 	public void endGame(String endGameStatus) {
 		for(int i=0; i<8; i++) {
 			for(int j=0; j<8; j++) {
