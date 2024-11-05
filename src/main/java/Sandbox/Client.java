@@ -10,7 +10,6 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 
-
 public class Client {
 	private static class Checkboard extends JPanel{
 		/**

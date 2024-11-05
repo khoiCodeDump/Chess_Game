@@ -3,9 +3,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -19,9 +18,6 @@ import org.apache.batik.transcoder.image.PNGTranscoder;
 
 public class PieceUI extends JButton{
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	Piece curPiece;
 	int i, j;
@@ -48,62 +44,84 @@ public class PieceUI extends JButton{
 			
 		
 	}
-	 public BufferedImage transcodeSVGToBufferedImage(File file, int width, int height) {
-        // Create a PNG transcoder.
+	 public BufferedImage transcodeSVGToBufferedImage(InputStream inputStream, int width, int height) {
+        if (inputStream == null) return null;
+        
         Transcoder t = new PNGTranscoder();
-
-        // Set the transcoding hints.
         t.addTranscodingHint(PNGTranscoder.KEY_WIDTH, (float) width);
         t.addTranscodingHint(PNGTranscoder.KEY_HEIGHT, (float) height);
-        try (FileInputStream inputStream = new FileInputStream(file)) {
-            // Create the transcoder input.
+        
+        try {
             TranscoderInput input = new TranscoderInput(inputStream);
-
-            // Create the transcoder output.
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             TranscoderOutput output = new TranscoderOutput(outputStream);
-
-            // Save the image.
+            
             t.transcode(input, output);
-
-            // Flush and close the stream.
             outputStream.flush();
             outputStream.close();
-
-            // Convert the byte stream into an image.
+            
             byte[] imgData = outputStream.toByteArray();
             return ImageIO.read(new ByteArrayInputStream(imgData));
-
         } catch (IOException | TranscoderException e) {
-            
+            e.printStackTrace();
         }
         return null;
     }
 	public BufferedImage generateChessPieceImage(String pieceType, Color color) {
-
+		String resourcePath = null;
+		
+		// Determine resource path
 		switch (pieceType) {
-		     case "King":
-		     	return (color == Color.WHITE) ? transcodeSVGToBufferedImage(new File("images/wK.svg"), 64, 64) : transcodeSVGToBufferedImage(new File("images/bK.svg"), 64, 64);
-		     case "Queen":
-		     	return (color == Color.WHITE) ? transcodeSVGToBufferedImage(new File("images/wQ.svg"), 64, 64) : transcodeSVGToBufferedImage(new File("images/bQ.svg"), 64, 64);
+			case "King":
+				resourcePath = color == Color.WHITE ? "/images/wK.svg" : "/images/bK.svg";
+				break;
+			case "Queen":
+				resourcePath = color == Color.WHITE ? "/images/wQ.svg" : "/images/bQ.svg";
+				break;
+			case "Rook":
+				resourcePath = color == Color.WHITE ? "/images/wR.svg" : "/images/bR.svg";
+				break;
+			case "Bishop":
+				resourcePath = color == Color.WHITE ? "/images/wB.svg" : "/images/bB.svg";
+				break;
+			case "Knight":
+				resourcePath = color == Color.WHITE ? "/images/wN.svg" : "/images/bN.svg";
+				break;
+			case "Pawn":
+				resourcePath = color == Color.WHITE ? "/images/wP.svg" : "/images/bP.svg";
+				break;
+		}
+
+		if (resourcePath == null) {
+			System.err.println("Invalid piece type: " + pieceType);
+			return null;
+		}
+
+		// Get resource as stream
+		InputStream inputStream = PieceUI.class.getResourceAsStream(resourcePath);
 		
-		     case "Rook":
-		     	return (color == Color.WHITE) ? transcodeSVGToBufferedImage(new File("images/wR.svg"), 64, 64) : transcodeSVGToBufferedImage(new File("images/bR.svg"), 64, 64);
+		if (inputStream == null) {
+			// Try alternative path
+			inputStream = PieceUI.class.getResourceAsStream(resourcePath.substring(1));
+		}
 		
-		     case "Bishop":
-		     	return (color == Color.WHITE) ? transcodeSVGToBufferedImage(new File("images/wB.svg"), 64, 64) : transcodeSVGToBufferedImage(new File("images/bB.svg"), 64, 64);
-		
-		     case "Knight":
-		     	return (color == Color.WHITE) ? transcodeSVGToBufferedImage(new File("images/wN.svg"), 64, 64) : transcodeSVGToBufferedImage(new File("images/bN.svg"), 64, 64);
-		
-		     case "Pawn":
-		     	return (color == Color.white) ? transcodeSVGToBufferedImage(new File("images/wP.svg"), 64, 64) : transcodeSVGToBufferedImage(new File("images/bP.svg"), 64, 64);
-		
-		     default:
-		         return null;
+		if (inputStream == null) {
+			System.err.println("Failed to load resource: " + resourcePath);
+			return null;
+		}
+
+		try {
+			return transcodeSVGToBufferedImage(inputStream, 64, 64);
+		} finally {
+			try {
+				inputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
-    public void updatePiece(Piece piece, boolean isEmpty, boolean pawnPromo) {
+
+	public void updatePiece(Piece piece, boolean isEmpty, boolean pawnPromo) {
     	PieceManager.board[i][j] = piece;    
 		
     	curPiece = piece;
