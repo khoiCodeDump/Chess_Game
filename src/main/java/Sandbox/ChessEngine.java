@@ -263,7 +263,10 @@ public class ChessEngine
 		}
 		
 		piecesLegalMoves.clear();
-
+		if(board[King.i][King.j].isEmpty)
+		{
+			return piecesLegalMoves;
+		}
 		int team = King.team;
 		List<Piece> checkingPieces = performChecks(King.i, King.j, team);
 		
@@ -280,6 +283,14 @@ public class ChessEngine
 						HashSet<Integer> route = piece.legalMoves;
 						if(!route.isEmpty())
 						{
+							for(Integer r : route)
+							{
+								int a = r/10;
+								int b = r%10;
+								Board.board[a][b].setBackground(Color.green);
+								Board.board[a][b].setBorder(new EmptyBorder(0, 0, 0, 0));
+								Board.board[a][b].setFocusable(false);
+							}
 							piecesLegalMoves.put(piece, route);
 						}
 						continue;
@@ -406,59 +417,91 @@ public class ChessEngine
 		HashSet<Integer> route = new HashSet<>();
 		int rowDir = direction[0];
 		int colDir = direction[1];
-		
+		boolean isPinned = false;
 		// Check direction away from king (for capturing enemy pieces)
 		for(int i = piece.i + rowDir, j = piece.j + colDir; 
 			i >= 0 && i < 8 && j >= 0 && j < 8; 
 			i += rowDir, j += colDir) {
 			
 			Piece curPiece = board[i][j];
-			if(curPiece.isEmpty) {
-				if(piece.type.equals("Queen") || piece.type.equals("Bishop")) {
-					route.add(i * 10 + j);
-				}
-				continue;
-			}
-			
-			if(curPiece.team == piece.team) {
-				route.clear();
-				return route;
-			}
-			
-			if(curPiece.team != piece.team) {
-				if(piece.type.equals("Pawn")) {
-					int rowDiff = Math.abs(piece.i - i);
-					int colDiff = Math.abs(piece.j - j);
-					if(rowDiff == 1 && colDiff == 1) {
+			if( Math.abs(colDir) == Math.abs(rowDir))
+			{
+				if(curPiece.isEmpty) {
+					if( (piece.type.equals("Queen") || piece.type.equals("Bishop"))) {
 						route.add(i * 10 + j);
 					}
+					continue;
 				}
-				else if(piece.type.equals("Queen") || piece.type.equals("Bishop")) {
+				
+				if(curPiece.team == piece.team) {
+					route.clear();
+					return route;
+				}
+				
+				if(curPiece.team != piece.team ) {
+					if(curPiece.type.equals("Bishop") || curPiece.type.equals("Queen"))
+					{
+						isPinned = true;
+					}
+					if(piece.type.equals("Pawn")) { 
+						int rowDiff = Math.abs(piece.i - i);
+						int colDiff = Math.abs(piece.j - j);
+						if(rowDiff == 1 && colDiff == 1) {
+							route.add(i * 10 + j);
+						}
+					}
+					else if( piece.type.equals("Queen") || piece.type.equals("Bishop")) {
+						route.add(i * 10 + j);
+					}
+					break;
+				}
+			}
+			else if(rowDir == 0 || colDir == 0)
+			{
+				if(piece.type.equals("Rook") || piece.type.equals("Queen"))
+				{
 					route.add(i * 10 + j);
 				}
-				return route;
+				if(curPiece.team == piece.team) {
+					route.clear();
+					return route;
+				}
+				if(curPiece.team != piece.team ) {
+					if(curPiece.type.equals("Rook") || curPiece.type.equals("Queen"))
+					{
+						isPinned = true;
+					}
+					if( (piece.type.equals("Queen") || piece.type.equals("Rook"))) 
+					{
+						route.add(i * 10 + j);
+					}
+					break;
+				}
 			}
 		}
-		
-		// Check direction towards king
-		for(int i = piece.i - rowDir, j = piece.j - colDir;
-			i >= 0 && i < 8 && j >= 0 && j < 8;
-			i -= rowDir, j -= colDir) {
-			
-			Piece curPiece = board[i][j];
-			if(curPiece.isEmpty) {
-				route.add(i * 10 + j);
-				continue;
+		if(isPinned)
+		{
+			// Check direction towards king
+			for(int i = piece.i - rowDir, j = piece.j - colDir;
+				i >= 0 && i < 8 && j >= 0 && j < 8;
+				i -= rowDir, j -= colDir) {
+				
+				Piece curPiece = board[i][j];
+				if(curPiece.isEmpty) {
+					route.add(i * 10 + j);
+					continue;
+				}
+				
+				if(curPiece == Board.King) {
+					return route;
+				}
+				
+				// If we hit any other piece, this direction is blocked
+				route.clear();
+				break;
 			}
-			
-			if(curPiece == Board.King) {
-				return route;
-			}
-			
-			// If we hit any other piece, this direction is blocked
-			route.clear();
-			break;
 		}
+		else route.clear();
 		
 		return route;
 	}

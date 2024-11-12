@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public class Chess_Bot {
-    private static final int MAX_DEPTH = 4; //this is always an even number greater than 0
+    private static final int MAX_DEPTH = 6; //this is always an even number greater than 0
     public static int team;
     private HashMap<String, Piece> capturedPieces;
     private static Piece[][] board;
@@ -153,7 +153,7 @@ public class Chess_Bot {
             int score;
             
             // If we're in check after making our move, it's illegal
-            if (isInCheck(side)) {
+            if (isInCheck(side) ) {
                 undoMove(move);
                 continue; // Skip this move and try next one
             }
@@ -223,6 +223,10 @@ public class Chess_Bot {
     private boolean isInCheck(int side) {
         // Use PieceManager's check detection
         Piece king = side > 0 ? King : Board.King;
+        if(board[king.i][king.j].isEmpty)
+        {
+            return true;
+        }
         return !ChessEngine.performChecks(king.i, king.j, king.team).isEmpty();
     }
 

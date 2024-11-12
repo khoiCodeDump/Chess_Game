@@ -1,5 +1,6 @@
 package Sandbox;
 
+// import java.awt.Color;
 import java.util.HashSet;
 
 public class Piece{
@@ -33,7 +34,8 @@ public class Piece{
 		// Get direction of route to king
 		int rowDiff = i - Board.King.i;
 		int colDiff = j - Board.King.j;
-		
+
+		if(rowDiff == 0 && colDiff ==0) return false;
 		// Now get the checking route
 		boolean isValidLine = false;
 		
@@ -48,6 +50,7 @@ public class Piece{
 
 		if(isValidLine)
 		{
+
 			// Get unit direction (-1, 0, or 1 for each component)
 			int rowDir = Integer.compare(rowDiff, 0);
 			int colDir = Integer.compare(colDiff, 0);
@@ -55,6 +58,7 @@ public class Piece{
 			HashSet<Integer> route = ChessEngine.GetRouteOnDir( new int[]{rowDir, colDir}, this);
 			if(!route.isEmpty())
 			{
+				// Board.board[i][j].setBackground(Color.red);
 				this.legalMoves = route;
 				return true;
 			}
