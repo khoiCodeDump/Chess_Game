@@ -1,13 +1,17 @@
 package Sandbox;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
+import javax.swing.border.EmptyBorder;
+
 import java.util.Arrays;
 
 
-public class PieceManager 
+public class ChessEngine 
 {
 	static Piece[][] board;
 	static HashMap<Piece, HashSet<Integer>> piecesLegalMoves; //this contains all the possible pieces that can move
@@ -240,9 +244,24 @@ public class PieceManager
 		String type = piece.type;
 		return color + type;
 	}
-	
 	public static HashMap<Piece, HashSet<Integer>> CheckKingSafety(Piece King, boolean simulation) 
 	{
+		Color themePiece = Board.hexToColor("#779952");
+		Color themePieceWhite = Board.hexToColor("#edeed1");
+		Color curColor = themePieceWhite;
+		for(int a=0; a<8; a++) {
+			Color curColumnColor = curColor;
+			for(int b=0; b<8; b++) {
+				Board.board[a][b].setBackground(curColumnColor);
+				Board.board[a][b].setBorder(new EmptyBorder(0, 0, 0, 0));
+				Board.board[a][b].setFocusable(false);
+				if(curColumnColor == themePiece) curColumnColor = themePieceWhite;
+				else curColumnColor = themePiece;
+			}
+			if(curColor == themePiece) curColor = themePieceWhite;
+			else curColor = themePiece;
+		}
+		
 		piecesLegalMoves.clear();
 
 		int team = King.team;
@@ -256,7 +275,15 @@ public class PieceManager
 				for(int j = 0; j < 8; j++) {
 					Piece piece = board[i][j];
 					if(piece.isEmpty || piece.team != team) continue;
-					
+					if(piece.isPinned())
+					{
+						HashSet<Integer> route = piece.legalMoves;
+						if(!route.isEmpty())
+						{
+							piecesLegalMoves.put(piece, route);
+						}
+						continue;
+					}
 					HashSet<Integer> pieceLegalMoves = GetLegalMoves(piece, piece.team);
 					if(pieceLegalMoves.size() > 0) {
 						hasLegalMoves = true;
@@ -294,7 +321,10 @@ public class PieceManager
 				for(int j = 0; j < 8; j++) {
 					Piece piece = board[i][j];
 					if(piece.team != team) continue;
-					
+					if(piece.isPinned()) //Pinned can not move since if they move, the king is dead
+					{
+						continue;
+					}
 					HashSet<Integer> moves = GetLegalMoves(piece, piece.team);
 					if(moves.contains(checkingPiecePosition)) {
 						piecesLegalMoves.put(piece, new HashSet<>(Arrays.asList(checkingPiecePosition)));
@@ -305,7 +335,18 @@ public class PieceManager
 		} else {
 			// Other pieces can be blocked or captured
 			piecesLegalMoves.putAll(GetMoveablePiecesForCheckingRoute(checkingPiece, King));
-			if(!simulation) System.out.println("There is a checking piece. Moveable pieces list size: " + piecesLegalMoves.size());
+			if(!simulation) 
+			{
+				// Other pieces can be blocked or captured
+			    piecesLegalMoves.putAll(GetMoveablePiecesForCheckingRoute(checkingPiece, King));
+//			    if(!simulation) {
+//			        piecesLegalMoves.forEach((piece, moves) -> {
+//			        	if (piece == null || moves == null) return;
+//			        	
+//			        	Board.board[piece.i][piece.j].setBackground(Color.green);
+//			        });
+//			    }
+			}
 		}
 		// If king can't move and no other pieces can help, it's checkmate
 		if(kingLegalMoves.isEmpty() && piecesLegalMoves.size() <= 1) {  // 1 because king will always be added
@@ -361,52 +402,76 @@ public class PieceManager
 
 		return checkingRoute;
 	}
-	public static HashSet<Integer> GetRoute(int kingRow, int kingCol, int Row, int Col) {
-		HashSet<Integer> checkingRoute = new HashSet<>();
+	public static HashSet<Integer> GetRouteOnDir(int[] direction, Piece piece) {
+		HashSet<Integer> route = new HashSet<>();
+		int rowDir = direction[0];
+		int colDir = direction[1];
 		
-		int rowDiff = Row - kingRow;
-		int colDiff = Col - kingCol;
-	
-
-		// Verify if the checking piece is on a valid line with the king
-		boolean isValidLine = false;
-		
-		// Check if it's a straight line (rook-like movement)
-		if (rowDiff == 0 || colDiff == 0) {
-			isValidLine = true;
-		}
-		// Check if it's a diagonal line (bishop-like movement)
-		else if (Math.abs(rowDiff) == Math.abs(colDiff)) {
-			isValidLine = true;
-		}
-		
-		if (!isValidLine) {
-			return checkingRoute; // Return empty set if not a valid line
-		}
-
-		// Get direction of movement
-		int rowDir = Integer.compare(rowDiff, 0);  // -1, 0, or 1
-		int colDir = Integer.compare(colDiff, 0);  // -1, 0, or 1
-
-		// Start from checking piece and move towards king (exclusive)
-		int currentRow = Row - rowDir;
-		int currentCol = Col - colDir;
-
-		while (currentRow != kingRow || currentCol != kingCol) {
-			if(!board[currentRow][currentCol].isEmpty)
-			{
-				checkingRoute.clear();
-				break;
+		// Check direction away from king (for capturing enemy pieces)
+		for(int i = piece.i + rowDir, j = piece.j + colDir; 
+			i >= 0 && i < 8 && j >= 0 && j < 8; 
+			i += rowDir, j += colDir) {
+			
+			Piece curPiece = board[i][j];
+			if(curPiece.isEmpty) {
+				if(piece.type.equals("Queen") || piece.type.equals("Bishop")) {
+					route.add(i * 10 + j);
+				}
+				continue;
 			}
-			checkingRoute.add(currentRow * 10 + currentCol);
-			currentRow -= rowDir;
-			currentCol -= colDir;
+			
+			if(curPiece.team == piece.team) {
+				route.clear();
+				return route;
+			}
+			
+			if(curPiece.team != piece.team) {
+				if(piece.type.equals("Pawn")) {
+					int rowDiff = Math.abs(piece.i - i);
+					int colDiff = Math.abs(piece.j - j);
+					if(rowDiff == 1 && colDiff == 1) {
+						route.add(i * 10 + j);
+					}
+				}
+				else if(piece.type.equals("Queen") || piece.type.equals("Bishop")) {
+					route.add(i * 10 + j);
+				}
+				return route;
+			}
 		}
-
-		return checkingRoute;
+		
+		// Check direction towards king
+		for(int i = piece.i - rowDir, j = piece.j - colDir;
+			i >= 0 && i < 8 && j >= 0 && j < 8;
+			i -= rowDir, j -= colDir) {
+			
+			Piece curPiece = board[i][j];
+			if(curPiece.isEmpty) {
+				route.add(i * 10 + j);
+				continue;
+			}
+			
+			if(curPiece == Board.King) {
+				return route;
+			}
+			
+			// If we hit any other piece, this direction is blocked
+			route.clear();
+			break;
+		}
+		
+		return route;
 	}
 	private static HashMap<Piece, HashSet<Integer>> GetMoveablePiecesForCheckingRoute(Piece checkingPiece, Piece King) {
 		HashSet<Integer> checkingRoute = GetCheckingRoute(King.i, King.j, checkingPiece.i, checkingPiece.j);
+		checkingRoute.add(checkingPiece.i*10 + checkingPiece.j);
+
+//		for(Integer routePos : checkingRoute)
+//		{
+//			int row = routePos / 10;
+//			int col = routePos % 10;
+//			Board.board[row][col].setBackground(Color.red);
+//		}
 		HashMap<Piece, HashSet<Integer>> legalPieces = new HashMap<>();
 		
 		// Check all friendly pieces
@@ -415,6 +480,15 @@ public class PieceManager
 				Piece piece = board[i][j];
 				if(piece.isEmpty || piece.team != King.team || piece == King) continue;
 				
+				if(piece.isPinned()) //Pinned piece can move, but only on the path computed.
+				{
+					HashSet<Integer> route = piece.legalMoves;
+					if(!route.isEmpty())
+					{
+						piecesLegalMoves.put(piece, route);
+					}
+					continue;
+				}
 				// Get all legal moves for this piece
 				HashSet<Integer> moves = GetLegalMoves(piece, piece.team);
 				

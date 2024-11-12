@@ -171,7 +171,7 @@ public class Board extends JPanel {
 				}
 			}	
 		}
-		PieceManager.board = pieces;
+		ChessEngine.board = pieces;
 		gameInfoWindow.setBoard(board);
 		positionHistory = new ArrayList<>();
 		positionHistory.add(new BoardPosition(pieces));
@@ -193,11 +193,11 @@ public class Board extends JPanel {
 			else curColor = themePiece;
 		}
 		
-		PieceManager.Initialize();
+		ChessEngine.Initialize();
 
 		
 	}
-	public Color hexToColor(String hex) {
+	public static Color hexToColor(String hex) {
         // Remove the "#" symbol if present
         if (hex.startsWith("#")) {
             hex = hex.substring(1);

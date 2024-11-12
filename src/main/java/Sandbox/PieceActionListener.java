@@ -22,24 +22,24 @@ public class PieceActionListener implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(PieceManager.turn != Client.team) return;
-		if(PieceManager.currentSelectedPiece == null)
+		if(ChessEngine.turn != Client.team) return;
+		if(ChessEngine.currentSelectedPiece == null)
 		{
 			if(pieceUI.curPiece.isEmpty) {
 				return;
 			}
-			if(PieceManager.piecesLegalMoves.containsKey(pieceUI.curPiece)) {
-				PieceManager.currentSelectedPiece = pieceUI.curPiece;
+			if(ChessEngine.piecesLegalMoves.containsKey(pieceUI.curPiece)) {
+				ChessEngine.currentSelectedPiece = pieceUI.curPiece;
 			}
 
 		}
 		else 
 		{
-			Piece callerPiece = PieceManager.currentSelectedPiece;
-			HashSet<Integer> pieceLegalMoves = PieceManager.piecesLegalMoves.get(callerPiece);
+			Piece callerPiece = ChessEngine.currentSelectedPiece;
+			HashSet<Integer> pieceLegalMoves = ChessEngine.piecesLegalMoves.get(callerPiece);
 			if(!pieceLegalMoves.contains(i*10 + j)) {
-				if(pieceUI.curPiece != Board.emptyPiece && PieceManager.piecesLegalMoves.containsKey(pieceUI.curPiece)) PieceManager.currentSelectedPiece = pieceUI.curPiece;
-				else PieceManager.currentSelectedPiece = null;
+				if(pieceUI.curPiece != Board.emptyPiece && ChessEngine.piecesLegalMoves.containsKey(pieceUI.curPiece)) ChessEngine.currentSelectedPiece = pieceUI.curPiece;
+				else ChessEngine.currentSelectedPiece = null;
 				return;
 			}
 			String callerType = callerPiece.type;
@@ -55,7 +55,7 @@ public class PieceActionListener implements ActionListener {
 						
 						
 						Piece king = callerPiece;
-						Piece rook = PieceManager.board[0][0];
+						Piece rook = ChessEngine.board[0][0];
 						pieceUI.updatePiece(Board.emptyPiece, true, false);
 						Board.board[0][0].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][3].updatePiece(rook, false, false);
@@ -65,7 +65,7 @@ public class PieceActionListener implements ActionListener {
 					}
 					else if(this.j==6) { //king side
 						Piece king = callerPiece;
-						Piece rook = PieceManager.board[7][7];
+						Piece rook = ChessEngine.board[7][7];
 						Board.board[king.i][king.j].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][7].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][5].updatePiece(rook, false, false);
@@ -77,7 +77,7 @@ public class PieceActionListener implements ActionListener {
 				else if(callerTeam == 2 && callerJ == 3) {
 					if(this.j==1) { //king side
 						Piece king = callerPiece;
-						Piece rook = PieceManager.board[7][0];
+						Piece rook = ChessEngine.board[7][0];
 						pieceUI.updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][0].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][2].updatePiece(rook, false, false);
@@ -87,7 +87,7 @@ public class PieceActionListener implements ActionListener {
 					}
 					else if(this.j==5) { //queen side
 						Piece king = callerPiece;
-						Piece rook = PieceManager.board[7][7];
+						Piece rook = ChessEngine.board[7][7];
 						pieceUI.updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][7].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][4].updatePiece(rook, false, false);
@@ -241,7 +241,7 @@ public class PieceActionListener implements ActionListener {
 	 
 	public void UpdateTurn()
     {
-		Board.addPosition(PieceManager.board);
+		Board.addPosition(ChessEngine.board);
 
 		// Check for threefold repetition
 		if (Board.isThreefoldRepetition()) {
@@ -249,16 +249,16 @@ public class PieceActionListener implements ActionListener {
 			return;
 		}
 		
-		PieceManager.currentSelectedPiece = null;
-    	PieceManager.turn = (PieceManager.turn == 1) ? 2 : 1;
+		ChessEngine.currentSelectedPiece = null;
+    	ChessEngine.turn = (ChessEngine.turn == 1) ? 2 : 1;
 		
 		// Stop the timer immediately
 		Client.gameInfoWindow.stopTimer(Client.team);
 		Client.gameInfoWindow.startTimer(Chess_Bot.team);
 		
 		// Run bot calculation in separate thread
-		new Thread(() -> {
-			PieceManager.CheckKingSafety(Chess_Bot.King, false);
+		Thread botThread = new Thread(() -> {
+			ChessEngine.CheckKingSafety(Chess_Bot.King, false);
 			Client.chessBot.CalculateMove();
 			
 			// Use SwingUtilities to update UI and resume timer on EDT
@@ -266,9 +266,10 @@ public class PieceActionListener implements ActionListener {
 				Client.gameInfoWindow.stopTimer(Chess_Bot.team);
 				Client.gameInfoWindow.startTimer(Client.team);
 				Client.gameInfoWindow.updateCurTurn();
-				PieceManager.CheckKingSafety(Board.King, false);
+				ChessEngine.CheckKingSafety(Board.King, false);
 			});
-		}).start();
-		
+		});
+		botThread.setPriority(Thread.MIN_PRIORITY);
+		botThread.start();
     }
 }

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public class Chess_Bot {
-    private static final int MAX_DEPTH = 6;
+    private static final int MAX_DEPTH = 4; //this is always an even number greater than 0
     public static int team;
     private HashMap<String, Piece> capturedPieces;
     private static Piece[][] board;
@@ -82,7 +82,7 @@ public class Chess_Bot {
     	
         List<int[]> moves = new ArrayList<>();
 
-        HashMap<Piece, HashSet<Integer>> legalPiecesMoves = PieceManager.CheckKingSafety(side > 0 ? King : Board.King, true);
+        HashMap<Piece, HashSet<Integer>> legalPiecesMoves = ChessEngine.CheckKingSafety(side > 0 ? King : Board.King, true);
         // Use ChessBot piecesLegalMoves map
         legalPiecesMoves.forEach((piece, legalMoves) -> {
             if (legalMoves != null) {
@@ -167,7 +167,7 @@ public class Chess_Bot {
                     for (String promoPiece : new String[]{"Queen", "Rook", "Bishop", "Knight"}) {
                         board[toRow][toCol] = new Piece(promoPiece, toRow, toCol, team);
                         
-                        if (PieceManager.CheckKingSafety(Board.King, true).isEmpty()) {
+                        if (ChessEngine.CheckKingSafety(Board.King, true).isEmpty()) {
                             score = 99999 * side; // Checkmate value keeps same sign as side
                             break;
                         } else {
@@ -223,7 +223,7 @@ public class Chess_Bot {
     private boolean isInCheck(int side) {
         // Use PieceManager's check detection
         Piece king = side > 0 ? King : Board.King;
-        return !PieceManager.performChecks(king.i, king.j, king.team).isEmpty();
+        return !ChessEngine.performChecks(king.i, king.j, king.team).isEmpty();
     }
 
     private int evaluatePosition() {
@@ -576,7 +576,7 @@ public class Chess_Bot {
         	{
             	board[toRow][toCol] = new Piece(promoPiece, toRow, toCol, team);
             	callerPiece = board[toRow][toCol];
-        		if(PieceManager.CheckKingSafety(Board.King , true).isEmpty()) {
+        		if(ChessEngine.CheckKingSafety(Board.King , true).isEmpty()) {
             		break;
             	}
         	}
@@ -612,8 +612,8 @@ public class Chess_Bot {
 			Client.gameInfoWindow.endGame("draw");
 			return;
 		}
-        PieceManager.currentSelectedPiece = null;
-        PieceManager.turn = (PieceManager.turn == 1) ? 2 : 1;
+        ChessEngine.currentSelectedPiece = null;
+        ChessEngine.turn = (ChessEngine.turn == 1) ? 2 : 1;
 
         
     }

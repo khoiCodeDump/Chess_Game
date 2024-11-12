@@ -62,7 +62,7 @@ public class Client {
         //Game.java writeInt() to the Client
         gameWindow = new JFrame();
         gameWindow.setResizable(false);
-   	 	gameWindow.setBounds(100, 100, 1260, 839);
+   	 	gameWindow.setSize(1260, 839);
    	 	gameWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
    	    gameWindowPanel = new JPanel();
    	    gameWindowPanel.setLayout(null);

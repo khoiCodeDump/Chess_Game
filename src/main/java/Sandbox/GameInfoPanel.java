@@ -171,11 +171,11 @@ public class GameInfoPanel extends JPanel {
 		this.board = board;
 	}
 	public void updateCurTurn() {
-		for(Piece piece : PieceManager.enpassantList)
+		for(Piece piece : ChessEngine.enpassantList)
 		{
 			piece.enPassant = false;
 		}
-		PieceManager.enpassantList.clear();
+		ChessEngine.enpassantList.clear();
 		if(currentTurn.getText().equals("White to Move")) {
 			currentTurn.setText("Black to Move");
 		}
@@ -286,7 +286,7 @@ public class GameInfoPanel extends JPanel {
         return new Color(red, green, blue);
     }
 	
-	public void stopTimer(int Team) {
+	public synchronized void stopTimer(int Team) {
         if (Team == 1) {
         	long elapsedNanos = System.nanoTime() - whiteStartTime;
         	double elapsedSeconds = elapsedNanos / 1_000_000_000.0;
@@ -303,7 +303,7 @@ public class GameInfoPanel extends JPanel {
         }
     }
     
-    public void startTimer(int Team) 
+    public synchronized void startTimer(int Team) 
     {   
     	timeInTimer = 0;
         if (Team == 1) {

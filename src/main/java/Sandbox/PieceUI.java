@@ -122,7 +122,7 @@ public class PieceUI extends JButton{
 	}
 
 	public void updatePiece(Piece piece, boolean isEmpty, boolean pawnPromo) {
-    	PieceManager.board[i][j] = piece;    
+    	ChessEngine.board[i][j] = piece;    
 		
     	curPiece = piece;
     	piece.i = i;
@@ -137,7 +137,7 @@ public class PieceUI extends JButton{
     }
     public void botUpdatePiece(Piece piece) {
     	
-    	PieceManager.board[i][j] = piece;
+    	ChessEngine.board[i][j] = piece;
     	
     	curPiece = piece;
     	
@@ -153,7 +153,7 @@ public class PieceUI extends JButton{
     }
     public void ClientUpdatePiece(Piece piece) {
     	
-    	PieceManager.board[i][j] = piece;
+    	ChessEngine.board[i][j] = piece;
     	
     	curPiece = piece;
     	piece.i = i;
