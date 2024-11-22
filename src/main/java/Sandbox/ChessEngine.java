@@ -1,12 +1,12 @@
 package Sandbox;
 
-import java.awt.Color;
+// import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.swing.border.EmptyBorder;
+// import javax.swing.border.EmptyBorder;
 
 import java.util.Arrays;
 
@@ -246,21 +246,21 @@ public class ChessEngine
 	}
 	public static HashMap<Piece, HashSet<Integer>> CheckKingSafety(Piece King, boolean simulation) 
 	{
-		Color themePiece = Board.hexToColor("#779952");
-		Color themePieceWhite = Board.hexToColor("#edeed1");
-		Color curColor = themePieceWhite;
-		for(int a=0; a<8; a++) {
-			Color curColumnColor = curColor;
-			for(int b=0; b<8; b++) {
-				Board.board[a][b].setBackground(curColumnColor);
-				Board.board[a][b].setBorder(new EmptyBorder(0, 0, 0, 0));
-				Board.board[a][b].setFocusable(false);
-				if(curColumnColor == themePiece) curColumnColor = themePieceWhite;
-				else curColumnColor = themePiece;
-			}
-			if(curColor == themePiece) curColor = themePieceWhite;
-			else curColor = themePiece;
-		}
+		// Color themePiece = Board.hexToColor("#779952");
+		// Color themePieceWhite = Board.hexToColor("#edeed1");
+		// Color curColor = themePieceWhite;
+		// for(int a=0; a<8; a++) {
+		// 	Color curColumnColor = curColor;
+		// 	for(int b=0; b<8; b++) {
+		// 		Board.board[a][b].setBackground(curColumnColor);
+		// 		Board.board[a][b].setBorder(new EmptyBorder(0, 0, 0, 0));
+		// 		Board.board[a][b].setFocusable(false);
+		// 		if(curColumnColor == themePiece) curColumnColor = themePieceWhite;
+		// 		else curColumnColor = themePiece;
+		// 	}
+		// 	if(curColor == themePiece) curColor = themePieceWhite;
+		// 	else curColor = themePiece;
+		// }
 		
 		piecesLegalMoves.clear();
 		if(board[King.i][King.j].isEmpty)
@@ -283,14 +283,14 @@ public class ChessEngine
 						HashSet<Integer> route = piece.legalMoves;
 						if(!route.isEmpty())
 						{
-							for(Integer r : route)
-							{
-								int a = r/10;
-								int b = r%10;
-								Board.board[a][b].setBackground(Color.green);
-								Board.board[a][b].setBorder(new EmptyBorder(0, 0, 0, 0));
-								Board.board[a][b].setFocusable(false);
-							}
+							// for(Integer r : route)
+							// {
+							// 	int a = r/10;
+							// 	int b = r%10;
+							// 	Board.board[a][b].setBackground(Color.green);
+							// 	Board.board[a][b].setBorder(new EmptyBorder(0, 0, 0, 0));
+							// 	Board.board[a][b].setFocusable(false);
+							// }
 							piecesLegalMoves.put(piece, route);
 						}
 						continue;
