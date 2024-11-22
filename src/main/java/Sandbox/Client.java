@@ -130,9 +130,16 @@ public class Client {
     		chessBot = bot;
     	}
 	   	 
-	   	 cardlayout.next(cardLayoutPanel);
-	   	 gameCardLayout.next(gameCardLayoutPanel);
-	   	 gameInfoWindow.startTimer(team);
+		cardlayout.next(cardLayoutPanel);
+		gameCardLayout.next(gameCardLayoutPanel);
+		if(team == 1)
+		{
+			gameInfoWindow.startTimer(team);
+		}
+		else if(bot != null)
+		{
+			gameInfoWindow.startTimer(Chess_Bot.team);
+		}
     }
   
 }

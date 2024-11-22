@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
@@ -91,7 +92,18 @@ public class LobbyWindow extends JPanel {
 			{				
 				Client.CreateBoard(2, new Chess_Bot(1) );
 				Chess_Bot.SetBoard(Board.pieces);
-				Client.chessBot.CalculateMove();
+				Thread botThread = new Thread(() -> {
+					Client.chessBot.CalculateMove();
+					
+					// Use SwingUtilities to update UI and resume timer on EDT
+					SwingUtilities.invokeLater(() -> {
+						Client.gameInfoWindow.stopTimer(Chess_Bot.team);
+						Client.gameInfoWindow.startTimer(Client.team);
+						Client.gameInfoWindow.updateCurTurn();
+					});
+				});
+				botThread.setPriority(Thread.MIN_PRIORITY);
+				botThread.start();
 			}
 			
 		});

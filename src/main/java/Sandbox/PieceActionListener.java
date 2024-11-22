@@ -50,9 +50,9 @@ public class PieceActionListener implements ActionListener {
 
 			if(callerPiece.type.equals("King") && !callerPiece.hasMoved && callerPiece.i == 7 && Math.abs(callerPiece.j-j) == 2) 
 			{
-				if(callerTeam == 1 && callerPiece.j == 4) {
+				//castling logic
+				if(callerTeam == 1 && callerPiece.j == 4) { //white team
 					if(this.j == 2) { //queen side
-						
 						
 						Piece king = callerPiece;
 						Piece rook = ChessEngine.board[0][0];
@@ -74,7 +74,7 @@ public class PieceActionListener implements ActionListener {
 
 					}
 				}
-				else if(callerTeam == 2 && callerJ == 3) {
+				else if(callerTeam == 2 && callerJ == 3) { //black team
 					if(this.j==1) { //king side
 						Piece king = callerPiece;
 						Piece rook = ChessEngine.board[7][0];
@@ -82,13 +82,12 @@ public class PieceActionListener implements ActionListener {
 						Board.board[7][0].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][2].updatePiece(rook, false, false);
 						Board.board[7][1].updatePiece(king, false, false);
-						
 						UpdateTurn();
 					}
 					else if(this.j==5) { //queen side
 						Piece king = callerPiece;
 						Piece rook = ChessEngine.board[7][7];
-						pieceUI.updatePiece(Board.emptyPiece, true, false);
+						Board.board[king.i][king.j].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][7].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][4].updatePiece(rook, false, false);
 						Board.board[7][5].updatePiece(king, false, false);

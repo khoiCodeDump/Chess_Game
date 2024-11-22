@@ -24,7 +24,7 @@ public class GameInfoPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	JLabel blackTimerLabel;
 	JLabel whiteTimerLabel; 
-	JLabel currentTurn;
+	JLabel currentTurnLabel;
 	PieceUI[][] board;
 	JButton draw;
 	JButton playAgain;
@@ -84,11 +84,11 @@ public class GameInfoPanel extends JPanel {
 		whiteTimerLabel.setFont(new Font("Arial", Font.BOLD, 24));
 		whiteTimerLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		whiteTimerLabel.setForeground(Color.white);
-
-		currentTurn = new JLabel("White to Move");
-		currentTurn.setFont(new Font("Arial", Font.BOLD, 24));
-		currentTurn.setHorizontalAlignment(SwingConstants.CENTER);
-		currentTurn.setForeground(Color.white);
+			
+		currentTurnLabel = new JLabel("White to Move");
+		currentTurnLabel.setFont(new Font("Arial", Font.BOLD, 24));
+		currentTurnLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		currentTurnLabel.setForeground(Color.white);
 		
 	    JPanel buttonPanel = new JPanel();
 	    SpringLayout springLayout = new SpringLayout();
@@ -154,14 +154,14 @@ public class GameInfoPanel extends JPanel {
 		
 		if(team == 1) {
 			add(blackTimerLabel);
-			add(currentTurn);
+			add(currentTurnLabel);
 			add(buttonPanel);
 			add(whiteTimerLabel);
 		}
 		
 		else {
 			add(whiteTimerLabel);
-			add(currentTurn);
+			add(currentTurnLabel);
 			add(buttonPanel);
 			add(blackTimerLabel);
 		}
@@ -176,11 +176,11 @@ public class GameInfoPanel extends JPanel {
 			piece.enPassant = false;
 		}
 		ChessEngine.enpassantList.clear();
-		if(currentTurn.getText().equals("White to Move")) {
-			currentTurn.setText("Black to Move");
+		if(currentTurnLabel.getText().equals("White to Move")) {
+			currentTurnLabel.setText("Black to Move");
 		}
 		else {
-			currentTurn.setText("White to Move");
+			currentTurnLabel.setText("White to Move");
 		}
 	}
 	protected String checkWinCon(int timerTeam) {
@@ -247,7 +247,7 @@ public class GameInfoPanel extends JPanel {
 		}
 
 
-		currentTurn.setText(endGameStatus);
+		currentTurnLabel.setText(endGameStatus);
 	
 		
 
