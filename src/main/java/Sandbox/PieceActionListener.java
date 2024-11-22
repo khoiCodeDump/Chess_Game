@@ -56,7 +56,7 @@ public class PieceActionListener implements ActionListener {
 						
 						Piece king = callerPiece;
 						Piece rook = ChessEngine.board[0][0];
-						pieceUI.updatePiece(Board.emptyPiece, true, false);
+						Board.board[king.i][king.j].updatePiece(Board.emptyPiece, true, false);
 						Board.board[0][0].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][3].updatePiece(rook, false, false);
 						Board.board[7][2].updatePiece(king, false, false);
@@ -78,7 +78,7 @@ public class PieceActionListener implements ActionListener {
 					if(this.j==1) { //king side
 						Piece king = callerPiece;
 						Piece rook = ChessEngine.board[7][0];
-						pieceUI.updatePiece(Board.emptyPiece, true, false);
+						Board.board[king.i][king.j].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][0].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][2].updatePiece(rook, false, false);
 						Board.board[7][1].updatePiece(king, false, false);
