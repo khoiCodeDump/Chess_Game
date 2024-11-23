@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public class Chess_Bot {
-    private static final int MAX_DEPTH = 6; //this is always an even number greater than 0
+    private static final int MAX_DEPTH = 4; //this is always an even number greater than 0
     public static int team;
     private HashMap<String, Piece> capturedPieces;
     private static Piece[][] board;

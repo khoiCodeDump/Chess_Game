@@ -58,7 +58,18 @@ public class LobbyWindow extends JPanel {
 				Chess_Bot.SetBoard(Board.pieces);
 				if(playerTeam == 2)
 				{
-					Client.chessBot.CalculateMove();
+					Thread botThread = new Thread(() -> {
+						Client.chessBot.CalculateMove();
+						
+						// Use SwingUtilities to update UI and resume timer on EDT
+						SwingUtilities.invokeLater(() -> {
+							Client.gameInfoWindow.stopTimer(Chess_Bot.team);
+							Client.gameInfoWindow.startTimer(Client.team);
+							Client.gameInfoWindow.updateCurTurn();
+						});
+					});
+					botThread.setPriority(Thread.MIN_PRIORITY);
+					botThread.start();
 				}
 			}
 			
