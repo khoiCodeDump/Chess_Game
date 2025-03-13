@@ -1,3 +1,4 @@
+package Network;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -13,12 +14,18 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
+import ChessEngine.Board;
+import ChessEngine.ChessEngine;
+import ChessEngine.Chess_Bot;
+import ChessEngine.Piece;
+import ChessUI.GameInfoPanel;
+import ChessUI.LobbyWindow;
+import ChessUI.PieceUI;
+
 
 public class Client {
 	private static class Checkboard extends JPanel{
-		/**
-		 * 
-		 */
+
 		private static final long serialVersionUID = 1L;
 		static final int CHECKER_WIDTH= 120;
 		static final int CHECKER_HEIGHT = 100;
@@ -53,15 +60,18 @@ public class Client {
 	        return new Color(red, green, blue);
 	    }
 	}
-	static int team;
+	public static int team;
     static Board game;
-    static GameInfoPanel gameInfoWindow;
+    public static GameInfoPanel gameInfoWindow;
     static JFrame gameWindow;
-    static JPanel gameWindowPanel, lobbyWindow, cardLayoutPanel, gameCardLayoutPanel;
+    public static JPanel gameWindowPanel;
+	static JPanel lobbyWindow;
+	static JPanel cardLayoutPanel;
+	static JPanel gameCardLayoutPanel;
     static CardLayout cardlayout, gameCardLayout;
-    static ObjectOutputStream oos;
+    public static ObjectOutputStream oos;
     static ObjectInputStream ois;
-    static Chess_Bot chessBot;
+    public static Chess_Bot chessBot;
     public static void main(String[] args) throws UnknownHostException, IOException, ClassNotFoundException, InterruptedException{
         //get the localhost IP address, if server is running on some other IP, you need to use that
         InetAddress host = InetAddress.getLocalHost();
@@ -191,8 +201,8 @@ public class Client {
             	 CreateBoard(message.team, null);
              }
              else if(message.command.equals("Update_Turn")) {
-            	 PieceManager.CheckKingSafety(Board.King, false);
-            	 PieceManager.turn = (PieceManager.turn == 1) ? 2 : 1;
+            	 ChessEngine.CheckKingSafety(Board.King, false);
+            	 ChessEngine.turn = (ChessEngine.turn == 1) ? 2 : 1;
              	if(message.team == 1) {
          			Client.gameInfoWindow.whiteTimer.stop();
          			Client.gameInfoWindow.blackTimer.start();

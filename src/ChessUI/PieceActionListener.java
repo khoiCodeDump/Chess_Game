@@ -1,3 +1,4 @@
+package ChessUI;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -8,6 +9,10 @@ import java.util.HashSet;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+
+import Network.Client;
+import Network.Data;
+import ChessEngine.*;
 
 public class PieceActionListener implements ActionListener {
 	int i, j;
@@ -21,24 +26,24 @@ public class PieceActionListener implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(PieceManager.turn != Client.team) return;
-		if(PieceManager.currentSelectedPiece == null)
+		if(ChessEngine.turn != Client.team) return;
+		if(ChessEngine.currentSelectedPiece == null)
 		{
 			if(pieceUI.curPiece.isEmpty) {
 				return;
 			}
-			if(PieceManager.piecesLegalMoves.containsKey(pieceUI.curPiece)) {
-				PieceManager.currentSelectedPiece = pieceUI.curPiece;
+			if(ChessEngine.piecesLegalMoves.containsKey(pieceUI.curPiece)) {
+				ChessEngine.currentSelectedPiece = pieceUI.curPiece;
 			}
 
 		}
 		else 
 		{
-			Piece callerPiece = PieceManager.currentSelectedPiece;
-			HashSet<Integer> pieceLegalMoves = PieceManager.piecesLegalMoves.get(callerPiece);
+			Piece callerPiece = ChessEngine.currentSelectedPiece;
+			HashSet<Integer> pieceLegalMoves = ChessEngine.piecesLegalMoves.get(callerPiece);
 			if(!pieceLegalMoves.contains(i*10 + j)) {
-				if(pieceUI.curPiece != Board.emptyPiece && PieceManager.piecesLegalMoves.containsKey(pieceUI.curPiece)) PieceManager.currentSelectedPiece = pieceUI.curPiece;
-				else PieceManager.currentSelectedPiece = null;
+				if(pieceUI.curPiece != Board.emptyPiece && ChessEngine.piecesLegalMoves.containsKey(pieceUI.curPiece)) ChessEngine.currentSelectedPiece = pieceUI.curPiece;
+				else ChessEngine.currentSelectedPiece = null;
 				return;
 			}
 			String callerType = callerPiece.type;
@@ -54,7 +59,7 @@ public class PieceActionListener implements ActionListener {
 						
 						
 						Piece king = callerPiece;
-						Piece rook = PieceManager.board[0][0];
+						Piece rook = ChessEngine.board[0][0];
 						pieceUI.updatePiece(Board.emptyPiece, true, false);
 						Board.board[0][0].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][3].updatePiece(rook, false, false);
@@ -64,7 +69,7 @@ public class PieceActionListener implements ActionListener {
 					}
 					else if(this.j==6) { //king side
 						Piece king = callerPiece;
-						Piece rook = PieceManager.board[7][7];
+						Piece rook = ChessEngine.board[7][7];
 						Board.board[king.i][king.j].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][7].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][5].updatePiece(rook, false, false);
@@ -76,7 +81,7 @@ public class PieceActionListener implements ActionListener {
 				else if(callerTeam == 2 && callerJ == 3) {
 					if(this.j==1) { //king side
 						Piece king = callerPiece;
-						Piece rook = PieceManager.board[7][0];
+						Piece rook = ChessEngine.board[7][0];
 						pieceUI.updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][0].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][2].updatePiece(rook, false, false);
@@ -86,7 +91,7 @@ public class PieceActionListener implements ActionListener {
 					}
 					else if(this.j==5) { //queen side
 						Piece king = callerPiece;
-						Piece rook = PieceManager.board[7][7];
+						Piece rook = ChessEngine.board[7][7];
 						pieceUI.updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][7].updatePiece(Board.emptyPiece, true, false);
 						Board.board[7][4].updatePiece(rook, false, false);
@@ -234,7 +239,7 @@ public class PieceActionListener implements ActionListener {
 				UpdateTurn();
 
 			}
-//			if(callerPiece.type.equals("Rook") || callerPiece.type.equals("King")) { PieceManager.castle = false;}
+//			if(callerPiece.type.equals("Rook") || callerPiece.type.equals("King")) { ChessEngine.castle = false;}
 			callerPiece.hasMoved = true;
 		}		
 	} 
@@ -243,7 +248,7 @@ public class PieceActionListener implements ActionListener {
     {
 		if(Client.chessBot != null)
 		{
-			PieceManager.CheckKingSafety(Chess_Bot.King, false);
+			ChessEngine.CheckKingSafety(Chess_Bot.King, false);
 			Client.chessBot.CalculateMove();
 		}
 		else
@@ -260,8 +265,8 @@ public class PieceActionListener implements ActionListener {
 		}
 		
 		
-		PieceManager.currentSelectedPiece = null;
-    	PieceManager.turn = (PieceManager.turn == 1) ? 2 : 1;
+		ChessEngine.currentSelectedPiece = null;
+    	ChessEngine.turn = (ChessEngine.turn == 1) ? 2 : 1;
     	if(Client.team == 1) {
 			Client.gameInfoWindow.whiteTimer.stop();
 			Client.gameInfoWindow.blackTimer.start();

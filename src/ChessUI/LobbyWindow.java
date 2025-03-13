@@ -1,3 +1,4 @@
+package ChessUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -10,11 +11,17 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
+
+import ChessEngine.Board;
+import ChessEngine.Chess_Bot;
+import Network.Client;
+import Network.Data;
+
 import javax.swing.JButton;
 
 public class LobbyWindow extends JPanel {
 
-//	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 	int time = 0;
 	Timer queueTimer;
 	JLabel timeLabel ;

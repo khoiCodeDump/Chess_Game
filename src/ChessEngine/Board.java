@@ -1,8 +1,13 @@
+package ChessEngine;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import ChessUI.GameInfoPanel;
+import ChessUI.PieceUI;
+
 import java.awt.GridLayout;
 
 public class Board extends JPanel {
@@ -10,13 +15,13 @@ public class Board extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	static Piece[][] pieces;
-	static PieceUI[][] board;
+	public static Piece[][] pieces;
+	public static PieceUI[][] board;
 	GameInfoPanel gameInfo;
 	static int playerTeam;
 	JPanel gamePanel;
-	static Piece emptyPiece;
-	static Piece King;
+	public static Piece emptyPiece;
+	public static Piece King;
 	public Board(int playerTeam, GameInfoPanel gameInfoWindow) {
 		Board.playerTeam = playerTeam;
 		setLayout(new BorderLayout(0, 0));
@@ -164,7 +169,7 @@ public class Board extends JPanel {
 				}
 			}	
 		}
-		PieceManager.board = pieces;
+		ChessEngine.board = pieces;
 		gameInfoWindow.setBoard(board);
 //		 #779952
 //	     #edeed1
@@ -184,7 +189,7 @@ public class Board extends JPanel {
 			else curColor = themePiece;
 		}
 		
-		PieceManager.Initialize();
+		ChessEngine.Initialize();
 
 		
 	}

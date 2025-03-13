@@ -1,3 +1,4 @@
+package Network;
 import java.io.Serializable;
 
 public class Data implements Serializable{
@@ -9,11 +10,11 @@ public class Data implements Serializable{
 	int i,j, callerI, callerJ;
 	int team;
 	boolean pawnPromo, isEmpty, enPassant;
-	Data(String command, int team){
+	public Data(String command, int team){
 		this.command = command;
 		this.team = team;
 	}
-	Data(String command, int i, int j, int callerI, int callerJ){
+	public Data(String command, int i, int j, int callerI, int callerJ){
 		this.command = command;
 		this.i = i;
 		this.j = j;
@@ -22,13 +23,13 @@ public class Data implements Serializable{
 		if(command.equals("En Passant")) enPassant = true;
 
 	}
-	Data(String command, int i, int j){
+	public Data(String command, int i, int j){
 		this.command = command;
 		this.i = i;
 		this.j = j;
 		isEmpty = true;
 	}
-	Data(String command, int i, int j, String type){
+	public Data(String command, int i, int j, String type){
 		this.command = command;
 		this.i = i;
 		this.j = j;

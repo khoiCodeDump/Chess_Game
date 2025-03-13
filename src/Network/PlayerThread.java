@@ -1,3 +1,4 @@
+package Network;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -9,9 +10,9 @@ public class PlayerThread extends Thread {
 	ObjectOutputStream out;
 	Lobby lobby;
 	Game game;
-	PlayerThread(Socket s, Lobby lobby) throws IOException{
-		in = new ObjectInputStream(s.getInputStream());
-		out = new ObjectOutputStream(s.getOutputStream());
+	PlayerThread(Socket clientSocket, Lobby lobby) throws IOException{
+		in = new ObjectInputStream(clientSocket.getInputStream());
+		out = new ObjectOutputStream(clientSocket.getOutputStream());
 		this.lobby = lobby;
 	}
 	public void setGame(Game game) {
@@ -40,7 +41,6 @@ public class PlayerThread extends Thread {
 					}
 					
 				} catch (ClassNotFoundException | IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

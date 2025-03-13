@@ -1,10 +1,12 @@
+package ChessEngine;
 public class Piece{
 	
-	int i, j;
-	String type;
-	int team;
-	boolean isEmpty;
-	boolean enPassant;
+	public int i;
+	public int j;
+	public String type;
+	public int team;
+	public boolean isEmpty;
+	public boolean enPassant;
 	public int originalI;
 	public int originalJ;
 	public boolean hasMoved;
@@ -14,7 +16,7 @@ public class Piece{
 		type = "";
 	}
 
-	Piece(String type, int i, int j, int team){
+	public Piece(String type, int i, int j, int team){
 		this.type = type;
 		this.team = team;
 		this.i = i;

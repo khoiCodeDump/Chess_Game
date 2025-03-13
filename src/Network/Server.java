@@ -1,3 +1,4 @@
+package Network;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,8 +15,8 @@ public class Server {
 	        Lobby lobby = new Lobby();
  	        while(true) {
 	        	 System.out.println("Waiting for the client request");
-	        	 Socket s = server.accept();
-	        	 PlayerThread player = new PlayerThread(s, lobby);
+	        	 Socket clientSocket = server.accept();
+	        	 PlayerThread player = new PlayerThread(clientSocket, lobby);
 	        	 player.start();	        	 
 	        }
 

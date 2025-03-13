@@ -1,3 +1,4 @@
+package ChessUI;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -16,13 +17,17 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.PNGTranscoder;
 
+import Network.Client;
+import Network.Data;
+import ChessEngine.*;
+
 public class PieceUI extends JButton{
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	Piece curPiece;
+	public Piece curPiece;
 	int i, j;
 	public PieceUI(Piece piece, int i, int j)
 	{
@@ -103,7 +108,7 @@ public class PieceUI extends JButton{
 		}
 	}
     public void updatePiece(Piece piece, boolean isEmpty, boolean pawnPromo) {
-    	PieceManager.board[i][j] = piece;    
+    	ChessEngine.board[i][j] = piece;    
 		
     	curPiece = piece;
     	try {
@@ -140,7 +145,7 @@ public class PieceUI extends JButton{
     }
     public void botUpdatePiece(Piece piece) {
     	
-    	PieceManager.board[i][j] = piece;
+    	ChessEngine.board[i][j] = piece;
     	
     	curPiece = piece;
     	
@@ -156,7 +161,7 @@ public class PieceUI extends JButton{
     }
     public void ClientUpdatePiece(Piece piece) {
     	
-    	PieceManager.board[i][j] = piece;
+    	ChessEngine.board[i][j] = piece;
     	
     	curPiece = piece;
     	piece.i = i;

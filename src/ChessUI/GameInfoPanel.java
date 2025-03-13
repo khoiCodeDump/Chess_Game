@@ -1,3 +1,4 @@
+package ChessUI;
 
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -18,6 +19,10 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.Border;
 
+import ChessEngine.*;
+import Network.Client;
+import Network.Data;
+
 public class GameInfoPanel extends JPanel {
 	/**
 	 * 
@@ -31,10 +36,10 @@ public class GameInfoPanel extends JPanel {
 	JButton playAgain;
 	JButton forfeit;
     private int blackremainingSeconds, whiteremainingSeconds, team;
-    Timer blackTimer;
-	Timer whiteTimer;
+    public Timer blackTimer;
+	public Timer whiteTimer;
     
-	GameInfoPanel(int playerTeam, CardLayout cardlayout, JPanel cardLayoutPanel, CardLayout gameCardLayout, JPanel gameCardLayoutPanel, JPanel gameWindowPanel) {
+	public GameInfoPanel(int playerTeam, CardLayout cardlayout, JPanel cardLayoutPanel, CardLayout gameCardLayout, JPanel gameCardLayoutPanel, JPanel gameWindowPanel) {
 		this.team = playerTeam;
 		
 		setLayout(new GridLayout(4, 1, 0, 0));
@@ -218,11 +223,11 @@ public class GameInfoPanel extends JPanel {
 		this.board = board;
 	}
 	public void updateCurTurn() {
-		for(Piece piece : PieceManager.enpassantList)
+		for(Piece piece : ChessEngine.enpassantList)
 		{
 			piece.enPassant = false;
 		}
-		PieceManager.enpassantList.clear();
+		ChessEngine.enpassantList.clear();
 		if(currentTurn.getText().equals("White to Move")) {
 			currentTurn.setText("Black to Move");
 		}

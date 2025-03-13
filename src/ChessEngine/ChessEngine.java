@@ -1,19 +1,24 @@
 //import java.awt.Color;
+package ChessEngine;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
+import Network.Client;
+
 import java.util.Arrays;
 
 
-public class PieceManager 
+public class ChessEngine 
 {
-	static Piece[][] board;
-	static HashMap<Piece, HashSet<Integer>> piecesLegalMoves; //this contains all the possible pieces that can move
-	static Piece currentSelectedPiece; 
+	public static Piece[][] board;
+	public static HashMap<Piece, HashSet<Integer>> piecesLegalMoves; //this contains all the possible pieces that can move
+	public static Piece currentSelectedPiece; 
 //	static boolean castle;
-    static HashSet<Piece> enpassantList;
-	static int turn;
+    public static HashSet<Piece> enpassantList;
+	public static int turn;
 	public static void Initialize()
 	{
 //		castle = true;

@@ -1,7 +1,11 @@
+package ChessEngine;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
+import ChessUI.PieceUI;
+import Network.Client;
 
 public class Chess_Bot {
     private static final int MAX_DEPTH = 4;
@@ -81,7 +85,7 @@ public class Chess_Bot {
     	
         List<int[]> moves = new ArrayList<>();
 
-        HashMap<Piece, HashSet<Integer>> legalPiecesMoves = PieceManager.CheckKingSafety(side > 0 ? King : Board.King, true);
+        HashMap<Piece, HashSet<Integer>> legalPiecesMoves = ChessEngine.CheckKingSafety(side > 0 ? King : Board.King, true);
         // Use ChessBot piecesLegalMoves map
         legalPiecesMoves.forEach((piece, legalMoves) -> {
             if (legalMoves != null) {
@@ -156,9 +160,9 @@ public class Chess_Bot {
     }
 
     private boolean isInCheck(int side) {
-        // Use PieceManager's check detection
+        // Use ChessEngine's check detection
         Piece king = side > 0 ? King : Board.King;
-        return !PieceManager.performChecks(king.i, king.j, side).isEmpty();
+        return !ChessEngine.performChecks(king.i, king.j, side).isEmpty();
     }
 
     private int evaluatePosition() {
@@ -198,8 +202,8 @@ public class Chess_Bot {
         Board.board[toRow][toCol].botUpdatePiece(callerPiece);
         callerPieceUI.botUpdatePiece(Board.emptyPiece);
 
-        PieceManager.currentSelectedPiece = null;
-        PieceManager.turn = (PieceManager.turn == 1) ? 2 : 1;
+        ChessEngine.currentSelectedPiece = null;
+        ChessEngine.turn = (ChessEngine.turn == 1) ? 2 : 1;
         
         // Update timers
         if (team == 1) {
@@ -211,7 +215,7 @@ public class Chess_Bot {
         }
         Client.gameInfoWindow.updateCurTurn();
         
-        PieceManager.CheckKingSafety(Board.King, false);
+        ChessEngine.CheckKingSafety(Board.King, false);
         
     }
 }
